@@ -67,7 +67,7 @@ public class RegistrationIntentService extends IntentService {
 
 
                 InstanceID instanceID = InstanceID.getInstance(this);
-                String token = instanceID.getToken("1014098771787",
+                String token = instanceID.getToken("798268941620",
                         GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
 
 

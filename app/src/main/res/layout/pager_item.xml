@@ -1,22 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:orientation="vertical"
-      android:gravity="center">
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center">
+
+    <!--<android.support.v7.widget.CardView-->
+        <!--android:id="@+id/cardview"-->
+        <!--android:layout_width="fill_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--card_view:cardBackgroundColor="@color/cardview_initial_background"-->
+        <!--card_view:cardCornerRadius="8dp"-->
+        <!--android:layout_marginLeft="@dimen/margin_large"-->
+        <!--android:layout_marginRight="@dimen/margin_large"-->
+        <!-->-->
+
+    <!--<TextView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_margin="16dp"-->
+        <!--android:text="Card View Contents"-->
+        <!--/>-->
+
+    <!--</android.support.v7.widget.CardView>-->
 
     <TextView
           android:id="@+id/item_subtitle"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:textAppearance="?android:attr/textAppearanceLarge"
+          android:textSize="12sp"
           android:text="Page:"/>
 
     <TextView
           android:id="@+id/item_title"
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:textSize="80sp" />
+          android:textSize="82sp" />
+
+
 
 </LinearLayout>

@@ -23,6 +23,7 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 //import com.iitbhu.lastry.common.logger.Log;
@@ -32,7 +33,6 @@ import com.iitbhu.once.common.view.*;
 public class SlidingTabsBasicFragment extends Fragment {
 
     static final String LOG_TAG = "SlidingTabsBasicFragment";
-
     /**
      * A custom {@link ViewPager} title strip which looks much like Tabs present in Android v4.0 and
      * above, but is designed to give continuous feedback to the user when scrolling.
@@ -117,7 +117,13 @@ public class SlidingTabsBasicFragment extends Fragment {
          */
         @Override
         public CharSequence getPageTitle(int position) {
-            return "Item " + (position + 1);
+            switch (position){
+                case 0: return "Contacts";
+                case 1: return "Messages";
+                case 2: return "Broadcast";
+                default: return "Item " + (position + 1);
+            }
+
         }
         // END_INCLUDE (pageradapter_getpagetitle)
 
@@ -128,17 +134,21 @@ public class SlidingTabsBasicFragment extends Fragment {
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             // Inflate a new layout from our resources
-            View view = getActivity().getLayoutInflater().inflate(R.layout.pager_item,
-                    container, false);
-            // Add the newly created View to the ViewPager
-            container.addView(view);
+            View view;
 
-            // Retrieve a TextView from the inflated View, and update it's text
-            TextView title = (TextView) view.findViewById(R.id.item_title);
-            title.setText(String.valueOf(position + 1));
+            switch (position) {
+                case 2:
+                    view = getActivity().getLayoutInflater().inflate(R.layout.broadcast_layout, container, false);
+                    container.addView(view);
 
-
-            // Return the View
+                    break;
+                default:
+                    view = getActivity().getLayoutInflater().inflate(R.layout.pager_item, container, false);
+                    container.addView(view);
+                    TextView title = (TextView) view.findViewById(R.id.item_title);
+                    title.setText(String.valueOf(position + 1));
+                    break;
+            }
             return view;
         }
 

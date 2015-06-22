@@ -3,6 +3,7 @@ package com.iitbhu.once;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -25,6 +26,13 @@ public class MainActivity extends AppCompatActivity {
         if (!tokenmila){
             Intent intent = new Intent(this, Welcome.class);
             startActivity(intent);
+        }
+
+        if (savedInstanceState == null) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            SlidingTabsBasicFragment fragment = new SlidingTabsBasicFragment();
+            transaction.replace(R.id.sample_content_fragment, fragment);
+            transaction.commit();
         }
     }
 

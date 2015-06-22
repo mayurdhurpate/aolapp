@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Once</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="edit_name">Type your name</string>
+    <string name="button_proceed">Proceed</string>
+    <string name="title_activity_welcome">Welcome</string>
+    <string name="register">Register</string>
+</resources>

@@ -167,8 +167,10 @@ public class SlidingTabsBasicFragment extends Fragment {
                     view = getActivity().getLayoutInflater().inflate(R.layout.contactslayout, container, false);
                     container.addView(view);
                     mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
+                    
                     mLayoutManager = new LinearLayoutManager(getActivity());
                     mRecyclerView.setLayoutManager(mLayoutManager);
+
                     String[] contacts = new String[50];
 //                    contacts[0] = "qqq";
 //                    contacts[1] = "ggg";

@@ -123,6 +123,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void broadcastProceed(View view) {
         EditText bmsg = (EditText)findViewById(R.id.edit_broadcast);
+        EditText bmsg_title = (EditText)findViewById(R.id.edit_broadcast_title);
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         String username = sharedPreferences.getString(QuickstartPreferences.USERNAME, "user");
 
@@ -131,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
             // fetch data
-            new DownloadWebpageTask().execute("http://128.199.123.200/broadcastreceive/","username="+username+"&passkey=hellolastry"+"&bmsg="+bmsg.getText());
+            new DownloadWebpageTask().execute("http://128.199.123.200/broadcastreceive/","username="+username+"&passkey=hellolastry"+"&bmsg="+bmsg.getText()+"&bmsg_title="+bmsg_title.getText());
         } else {
             showToast("No network connection available!");
         }
@@ -166,6 +167,8 @@ public class MainActivity extends AppCompatActivity {
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
+            Toast.makeText(getApplicationContext(), "result: "+result, Toast.LENGTH_LONG).show();
+
             try {
                 JSONObject jObject = new JSONObject(result);
                 String action = jObject.getString("action");
@@ -188,10 +191,10 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             catch (Exception e){
-                Toast.makeText(getApplicationContext(), e.toString(), Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), "onPostExecute: "+e.toString(), Toast.LENGTH_LONG).show();
             }
 
-            Toast.makeText(getApplicationContext(), result, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "onPostExecute: "+result, Toast.LENGTH_SHORT).show();
         }
 
 
@@ -219,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
 //                return Integer.toString(statusCode);
 
             } catch (Exception e) {
-                return e.toString();
+                return "downloadUrl: "+e.toString();
             }
 //        String contentAsString = readIt(myInputStream, len);
 //            return contentAsString;

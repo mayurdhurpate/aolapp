@@ -9,9 +9,16 @@
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/edit_broadcast"
+        android:id="@+id/edit_broadcast_title"
         android:layout_weight="1"
-        android:hint="Click here to start typing..."/>
+        android:hint="Broadcast Title"/>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/edit_broadcast"
+        android:layout_weight="2"
+        android:hint="Broadcast Message"/>
 
     <Button
         android:layout_width="wrap_content"

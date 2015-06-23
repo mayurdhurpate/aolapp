@@ -16,19 +16,30 @@
 
 package com.iitbhu.once;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
-//import com.iitbhu.lastry.common.logger.Log;
+import android.widget.Toast;
 import com.iitbhu.once.common.view.*;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 
 public class SlidingTabsBasicFragment extends Fragment {
@@ -39,16 +50,21 @@ public class SlidingTabsBasicFragment extends Fragment {
      * above, but is designed to give continuous feedback to the user when scrolling.
      */
     private SlidingTabLayout mSlidingTabLayout;
-
+    private RecyclerView mRecyclerView;
+    private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager mLayoutManager;
     /**
      * A {@link ViewPager} which will be used in conjunction with the {@link SlidingTabLayout} above.
      */
     private ViewPager mViewPager;
-
+    public SharedPreferences contactfile = this.getActivity().getSharedPreferences(QuickstartPreferences.CONTACTS, 0);
+    public String contacts_arry = contactfile.getString(QuickstartPreferences.CONTACTS, "null");
     /**
      * Inflates the {@link View} which will be displayed by this {@link Fragment}, from the app's
      * resources.
      */
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
@@ -132,6 +148,8 @@ public class SlidingTabsBasicFragment extends Fragment {
          * Instantiate the {@link View} which should be displayed at {@code position}. Here we
          * inflate a layout from the apps resources and then change the text view to signify the position.
          */
+
+
         @Override
         public Object instantiateItem(ViewGroup container, int position) {
             // Inflate a new layout from our resources
@@ -146,6 +164,37 @@ public class SlidingTabsBasicFragment extends Fragment {
                 case 0:
                     view = getActivity().getLayoutInflater().inflate(R.layout.contactslayout, container, false);
                     container.addView(view);
+                    mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
+                    mLayoutManager = new LinearLayoutManager(getActivity());
+                    mRecyclerView.setLayoutManager(mLayoutManager);
+                    String[] contacts = new String[50];
+                    try{
+                        JSONArray jArray = new JSONArray(contacts_arry);
+                        for (int i=0; i < jArray.length(); i++)
+                        {
+                            try {
+                                JSONObject oneObject = jArray.getJSONObject(i);
+                                // Pulling items from the array
+                                contacts[i]= oneObject.getString("name");
+
+                            } catch (JSONException e) {
+                                Log.i("exception",e.toString());
+                            }
+                        }
+
+                    }catch (Exception e){
+
+                    Log.i("exception",e.toString());
+
+                }
+
+
+
+
+                    mAdapter = new CustomAdapter(contacts);
+                    // Set CustomAdapter as the adapter for RecyclerView.
+                    mRecyclerView.setAdapter(mAdapter);
+
 
 
                     break;

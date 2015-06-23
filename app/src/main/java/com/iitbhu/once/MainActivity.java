@@ -41,11 +41,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        SharedPreferences messagefile = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
-//        String message = messagefile.getString("message", "patanahi");
-//        showToast(message);
+        SharedPreferences messagefile = getSharedPreferences(QuickstartPreferences.CONTACTS, 0);
+        String message = messagefile.getString("message", "patanahi");
+        showToast(message);
 
-        fetchContacts();
+        //fetchContacts();
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean tokenmila = sharedPreferences.getBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false);
@@ -62,9 +62,9 @@ public class MainActivity extends AppCompatActivity {
             SlidingTabsBasicFragment fragment = new SlidingTabsBasicFragment();
             transaction.replace(R.id.sample_content_fragment, fragment);
             transaction.commit();
-
-
         }
+
+
     }
 
     @Override

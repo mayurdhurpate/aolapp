@@ -18,6 +18,7 @@ package com.iitbhu.once;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
@@ -142,6 +143,12 @@ public class SlidingTabsBasicFragment extends Fragment {
                     container.addView(view);
 
                     break;
+                case 0:
+                    view = getActivity().getLayoutInflater().inflate(R.layout.contactslayout, container, false);
+                    container.addView(view);
+
+
+                    break;
                 default:
                     view = getActivity().getLayoutInflater().inflate(R.layout.pager_item, container, false);
                     container.addView(view);
@@ -162,4 +169,6 @@ public class SlidingTabsBasicFragment extends Fragment {
         }
 
     }
+
+
 }

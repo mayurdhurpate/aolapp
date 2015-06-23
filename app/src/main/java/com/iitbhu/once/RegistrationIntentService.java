@@ -142,7 +142,7 @@ public class RegistrationIntentService extends IntentService {
 
 
 
-     private class DownloadWebpageTask extends AsyncTask<String, Void, String> {
+     public class DownloadWebpageTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... urls) {
 

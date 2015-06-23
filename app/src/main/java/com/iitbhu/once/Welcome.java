@@ -43,13 +43,9 @@ public class Welcome extends AppCompatActivity {
                 SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
                 boolean sentToken = sharedPreferences.getBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false);
                 if (sentToken) {
+                    Intent newintent = new Intent(getBaseContext(), MainActivity.class);
+                    startActivity(newintent);
                     finish();
-//                    Intent newintent = new Intent(getBaseContext(), MainActivity.class);
-//                    EditText editText = (EditText) findViewById(R.id.edit_name);
-//                    String message = editText.getText().toString();
-//                    newintent.putExtra(EXTRA_MESSAGE, "Hello, "+message);
-//                    startActivity(newintent);
-//                    finish();
                 } else {
 //                    mInformationTextView.setText(getString(R.string.token_error_message));
                 }

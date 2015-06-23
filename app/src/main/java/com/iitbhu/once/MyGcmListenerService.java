@@ -20,11 +20,14 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.gcm.GcmListenerService;
 
@@ -46,6 +49,8 @@ public class MyGcmListenerService extends GcmListenerService {
         Log.d(TAG, "From: " + from);
         Log.d(TAG, "Message: " + message);
 
+        SharedPreferences messagefile = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
+        messagefile.edit().putString("message",message).apply();
         /**
          * Production applications would usually process the message here.
          * Eg: - Syncing with server.

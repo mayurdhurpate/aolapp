@@ -74,13 +74,6 @@ public class RegistrationIntentService extends IntentService {
                 Log.i(TAG, "GCM Registration Token: " + token);
                 String username = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
 
-                Context con = getApplicationContext();
-                CharSequence text1 = "Token";
-                int duration1 = Toast.LENGTH_SHORT;
-
-                Toast toast1 = Toast.makeText(con, text1, duration1);
-                toast1.show();
-
 
                 // TODO: Implement this method to send any registration to your app's servers.
                 sendRegistrationToServer(token,username);

@@ -21,6 +21,7 @@ import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -41,12 +42,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SharedPreferences messagefile = getSharedPreferences(QuickstartPreferences.CONTACTS, 0);
-        String message = messagefile.getString("message", "patanahi");
-        showToast(message);
-
-        //fetchContacts();
-
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean tokenmila = sharedPreferences.getBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false);
 
@@ -56,10 +51,23 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
+        else{
+            fetchContacts();
+            fetchMessages();
+        }
 
+        SharedPreferences contactsfile = getSharedPreferences(QuickstartPreferences.CONTACTS, 0);
+        String contacts = contactsfile.getString("contacts", "cpatanahi");
+        SharedPreferences messagesfile = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
+        String messages = messagesfile.getString("messages", "mpatanahi");
         if (savedInstanceState == null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
             SlidingTabsBasicFragment fragment = new SlidingTabsBasicFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString(QuickstartPreferences.CONTACTS,contacts);
+            bundle.putString(QuickstartPreferences.MESSAGES,messages);
+            fragment.setArguments(bundle);
             transaction.replace(R.id.sample_content_fragment, fragment);
             transaction.commit();
         }
@@ -161,15 +169,17 @@ public class MainActivity extends AppCompatActivity {
             try {
                 JSONObject jObject = new JSONObject(result);
                 String action = jObject.getString("action");
+                JSONArray jArray;
                 switch (action){
                     case "fetch_contacts":
                         SharedPreferences contactfile = getSharedPreferences(QuickstartPreferences.CONTACTS, 0);
-                        JSONArray jArray = jObject.getJSONArray("contacts");
+                        jArray = jObject.getJSONArray("contacts");
                         contactfile.edit().putString("contacts",jArray.toString()).apply();
-                        Toast.makeText(getApplicationContext(), jArray.toString(), Toast.LENGTH_LONG).show();
-
                         break;
                     case "fetch_messages":
+                        SharedPreferences messagefile = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
+                        jArray = jObject.getJSONArray("messages");
+                        messagefile.edit().putString("messages",jArray.toString()).apply();
                         break;
                     case "broadcast_msg":
                         break;

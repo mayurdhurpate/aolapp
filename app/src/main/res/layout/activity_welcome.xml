@@ -9,12 +9,13 @@
         android:textSize="30dp"
         android:textColor="@color/register_orangetype"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:paddingBottom="30dp"/>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center">
 

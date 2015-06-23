@@ -57,8 +57,9 @@ public class SlidingTabsBasicFragment extends Fragment {
      * A {@link ViewPager} which will be used in conjunction with the {@link SlidingTabLayout} above.
      */
     private ViewPager mViewPager;
-    public SharedPreferences contactfile = this.getActivity().getSharedPreferences(QuickstartPreferences.CONTACTS, 0);
-    public String contacts_arry = contactfile.getString(QuickstartPreferences.CONTACTS, "null");
+
+    public Bundle bundle;
+
     /**
      * Inflates the {@link View} which will be displayed by this {@link Fragment}, from the app's
      * resources.
@@ -68,6 +69,7 @@ public class SlidingTabsBasicFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
+        bundle = this.getArguments();
         return inflater.inflate(R.layout.fragment_sample, container, false);
     }
 
@@ -168,8 +170,12 @@ public class SlidingTabsBasicFragment extends Fragment {
                     mLayoutManager = new LinearLayoutManager(getActivity());
                     mRecyclerView.setLayoutManager(mLayoutManager);
                     String[] contacts = new String[50];
+//                    contacts[0] = "qqq";
+//                    contacts[1] = "ggg";
+
+                    String contacts_array = bundle.getString(QuickstartPreferences.CONTACTS, "No contacts");
                     try{
-                        JSONArray jArray = new JSONArray(contacts_arry);
+                        JSONArray jArray = new JSONArray(contacts_array);
                         for (int i=0; i < jArray.length(); i++)
                         {
                             try {
@@ -187,16 +193,49 @@ public class SlidingTabsBasicFragment extends Fragment {
                     Log.i("exception",e.toString());
 
                 }
-
-
-
-
                     mAdapter = new CustomAdapter(contacts);
-                    // Set CustomAdapter as the adapter for RecyclerView.
                     mRecyclerView.setAdapter(mAdapter);
+                    break;
 
+                case 1:
+                    view = getActivity().getLayoutInflater().inflate(R.layout.contactslayout, container, false);
+                    container.addView(view);
+                    mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
+                    mLayoutManager = new LinearLayoutManager(getActivity());
+                    mRecyclerView.setLayoutManager(mLayoutManager);
+                    String[] messages = new String[50];
+//                    contacts[0] = "qqq";
+//                    contacts[1] = "ggg";
 
+                    String messages_array = bundle.getString(QuickstartPreferences.MESSAGES, "No messages");
+                    try{
+                        String msg;
+                        String sender;
+                        JSONArray jArray = new JSONArray(messages_array);
+                        for (int i=0; i < jArray.length(); i++)
 
+                        {
+
+                            try {
+                                JSONObject oneObject = jArray.getJSONObject(i);
+                                // Pulling items from the array
+
+                                msg = oneObject.getString("message");
+                                sender = oneObject.getString("sender");
+                                messages[i] = sender + ": " +msg;
+
+                            } catch (JSONException e) {
+                                Log.i("exception",e.toString());
+                            }
+                        }
+
+                    }catch (Exception e){
+
+                        Log.i("exception",e.toString());
+
+                    }
+                    mAdapter = new CustomAdapter(messages);
+                    mRecyclerView.setAdapter(mAdapter);
                     break;
                 default:
                     view = getActivity().getLayoutInflater().inflate(R.layout.pager_item, container, false);

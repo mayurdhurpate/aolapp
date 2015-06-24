@@ -7,4 +7,8 @@
     <color name="orange">#FF9900</color>
     <color name="light_green">#01DF3A</color>
     <color name="pink">#FE2EF7</color>
+    <color name="sky_blue">#58ACFA</color>
+    <color name="sky_blue2">#084B8A</color>
+    <color name="black">#000000</color>
+
 </resources>

@@ -5,7 +5,14 @@
     android:gravity="center"
     android:orientation="vertical">
 
-
+    <!--<ProgressBar-->
+        <!--android:id="@+id/pgbar"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="2sp"-->
+        <!--style="@android:style/Widget.ProgressBar.Horizontal"-->
+        <!--android:indeterminate="true"-->
+        <!--android:progressDrawable="@color/sky_blue"-->
+        <!--android:layout_marginRight="5dp" />-->
 
     <EditText
         android:layout_width="wrap_content"
@@ -15,15 +22,17 @@
         android:hint="Broadcast Message"/>
 
     <Button
+        android:id="@+id/bbutton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/button_proceed"
         android:layout_marginBottom="200sp"
         android:onClick="broadcastProceed"/>
 
-    <!--<ProgressBar-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:id="@+id/broadcastProgressBar" />-->
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/broadcastProgressBar"
+        android:layout_marginBottom="50sp"/>
 
 </LinearLayout>

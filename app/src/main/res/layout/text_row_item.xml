@@ -31,13 +31,12 @@
         android:paddingTop="10sp"
         android:paddingLeft="5sp"
         android:paddingBottom="10sp"
-        android:textColor="@color/pink"
         android:text="@string/element_text"/>
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@android:color/holo_blue_bright" />
+        android:background="@color/black" />
 
 
 </FrameLayout>

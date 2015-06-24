@@ -166,6 +166,8 @@ public class SlidingTabsBasicFragment extends Fragment {
                 case 2:
                     view = getActivity().getLayoutInflater().inflate(R.layout.broadcast_layout, container, false);
                     container.addView(view);
+                    ((MainActivity)getActivity()).pgbar = (ProgressBar)view.findViewById(R.id.broadcastProgressBar);
+                    ((MainActivity)getActivity()).pgbar.setVisibility(View.GONE);
 
                     break;
                 case 0:

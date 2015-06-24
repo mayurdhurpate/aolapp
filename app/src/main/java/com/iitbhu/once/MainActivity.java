@@ -23,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -51,11 +52,15 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView.LayoutManager mLayoutManager;
     public boolean dataloaded = false;
     public boolean dataloaded1 = false;
+    public ProgressBar pgbar;
+    public EditText bmsg;
+    public Button bbutton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -175,7 +180,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void broadcastProceed(View view) {
-        EditText bmsg = (EditText)findViewById(R.id.edit_broadcast);
+        pgbar.setVisibility(View.VISIBLE);
+        bmsg = (EditText)findViewById(R.id.edit_broadcast);
+        bmsg.setEnabled(false);
+        bbutton = (Button)findViewById(R.id.bbutton);
+        bbutton.setEnabled(false);
+
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         String username = sharedPreferences.getString(QuickstartPreferences.USERNAME, "user");
 
@@ -205,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
              mRecyclerView= (RecyclerView) findViewById(R.id.recyclerView2);
         }
         CustomAdapter adapter =(CustomAdapter) mRecyclerView.getAdapter();
-        adapter.updateItems(newItem,tab);
+        adapter.updateItems(newItem, tab);
         if(flag == 1) {
             adapter.notifyItemInserted(0);
         }
@@ -215,43 +225,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void updateData(){
-
-        String[] messages = new String[50];
-        SharedPreferences messagefile = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
-        String message_array = messagefile.getString("contacts", "csdpatanahi");
-        try{
-            String msg;
-            String sender;
-            JSONArray jArray = new JSONArray(message_array);
-            for (int i=0; i < jArray.length(); i++)
-            {
-                try {
-                    JSONObject oneObject = jArray.getJSONObject(i);
-                    // Pulling items from the array
-                    msg = oneObject.getString("message");
-                    sender = oneObject.getString("sender");
-                    messages[i] = sender + ": " +msg;
-
-                } catch (JSONException e) {
-                    Log.i("exception", e.toString());
-                }
-            }
-
-        }catch (Exception e){
-
-            Log.i("exception",e.toString());
-
-        }
-
-        mAdapter = new CustomAdapter(messages);
-        RecyclerView mRecyclerView= (RecyclerView) findViewById(R.id.recyclerView2);
-        mLayoutManager = new LinearLayoutManager(this);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.setAdapter(mAdapter);
-//        mAdapter.notifyDataSetChanged();
-
-    }
 
 
 
@@ -302,6 +275,9 @@ public class MainActivity extends AppCompatActivity {
                         dataloaded1 = true;
                         break;
                     case "broadcast_msg":
+                        pgbar.setVisibility(View.GONE);
+                        bmsg.setEnabled(true);
+                        bbutton.setEnabled(true);
                         break;
                     case "error":
                         String except = jObject.getString("exception");

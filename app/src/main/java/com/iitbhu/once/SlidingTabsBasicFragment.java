@@ -20,10 +20,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -53,6 +55,9 @@ public class SlidingTabsBasicFragment extends Fragment {
     private RecyclerView mRecyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private Handler handler = new Handler();
+
+
     /**
      * A {@link ViewPager} which will be used in conjunction with the {@link SlidingTabLayout} above.
      */
@@ -167,8 +172,8 @@ public class SlidingTabsBasicFragment extends Fragment {
                     view = getActivity().getLayoutInflater().inflate(R.layout.contactslayout, container, false);
                     container.addView(view);
                     mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
-                    
-                    mLayoutManager = new LinearLayoutManager(getActivity());
+
+                        mLayoutManager = new LinearLayoutManager(getActivity());
                     mRecyclerView.setLayoutManager(mLayoutManager);
 
                     String[] contacts = new String[50];
@@ -182,7 +187,6 @@ public class SlidingTabsBasicFragment extends Fragment {
                         {
                             try {
                                 JSONObject oneObject = jArray.getJSONObject(i);
-                                // Pulling items from the array
                                 contacts[i]= oneObject.getString("name");
 
                             } catch (JSONException e) {
@@ -195,20 +199,54 @@ public class SlidingTabsBasicFragment extends Fragment {
                     Log.i("exception",e.toString());
 
                 }
+
+
+
                     mAdapter = new CustomAdapter(contacts);
                     mRecyclerView.setAdapter(mAdapter);
+                    final SwipeRefreshLayout mSwipeRefreshLayout = (SwipeRefreshLayout)view.findViewById(R.id.activity_main_swipe_refresh_layout);
+                    mSwipeRefreshLayout.setColorSchemeResources(R.color.orange, R.color.green, R.color.blue);
+                     final Runnable refreshing = new Runnable() {
+                        public void run() {
+                            try {
+
+                                boolean data = ((MainActivity) getActivity()).dataloaded;
+                                // TODO : isRefreshing should be attached to your data request status
+                                if (!data) {
+                                    // re run the verification after 1 second
+                                    handler.postDelayed(this, 1000);
+                                } else {
+                                    // stop the animation after the data is fully loaded
+                                    mSwipeRefreshLayout.setRefreshing(false);
+                                    // TODO : update your list with the new data
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    };
+                    mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                        @Override
+                        public void onRefresh() {
+                            ((MainActivity) getActivity()).dataloaded = false;
+                            ((MainActivity) getActivity()).fetchContacts();
+                            handler.post(refreshing);
+                        }
+                    });
+
+
+
+
                     break;
 
+
                 case 1:
-                    view = getActivity().getLayoutInflater().inflate(R.layout.contactslayout, container, false);
+                    view = getActivity().getLayoutInflater().inflate(R.layout.messageslayout, container, false);
                     container.addView(view);
-                    mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
+                    mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView2);
                     mLayoutManager = new LinearLayoutManager(getActivity());
                     mRecyclerView.setLayoutManager(mLayoutManager);
                     String[] messages = new String[50];
-//                    contacts[0] = "qqq";
-//                    contacts[1] = "ggg";
-
                     String messages_array = bundle.getString(QuickstartPreferences.MESSAGES, "No messages");
                     try{
                         String msg;
@@ -217,11 +255,8 @@ public class SlidingTabsBasicFragment extends Fragment {
                         for (int i=0; i < jArray.length(); i++)
 
                         {
-
                             try {
                                 JSONObject oneObject = jArray.getJSONObject(i);
-                                // Pulling items from the array
-
                                 msg = oneObject.getString("message");
                                 sender = oneObject.getString("sender");
                                 messages[i] = sender + ": " +msg;
@@ -238,7 +273,38 @@ public class SlidingTabsBasicFragment extends Fragment {
                     }
                     mAdapter = new CustomAdapter(messages);
                     mRecyclerView.setAdapter(mAdapter);
+                    final SwipeRefreshLayout mSwipeRefreshLayout1 = (SwipeRefreshLayout)view.findViewById(R.id.activity_main_swipe_refresh_layout);
+                    mSwipeRefreshLayout1.setColorSchemeResources(R.color.orange, R.color.green, R.color.blue);
+                    final Runnable refreshing1 = new Runnable() {
+                        public void run() {
+                            try {
+
+                                boolean data = ((MainActivity) getActivity()).dataloaded1;
+                                // TODO : isRefreshing should be attached to your data request status
+                                if (!data) {
+                                    // re run the verification after 1 second
+                                    handler.postDelayed(this, 1000);
+                                } else {
+                                    // stop the animation after the data is fully loaded
+                                    mSwipeRefreshLayout1.setRefreshing(false);
+                                    // TODO : update your list with the new data
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    };
+                    mSwipeRefreshLayout1.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                        @Override
+                        public void onRefresh() {
+                            ((MainActivity) getActivity()).dataloaded1 = false;
+                            ((MainActivity) getActivity()).fetchMessages();
+                            handler.post(refreshing1);
+                        }
+                    });
+
                     break;
+
                 default:
                     view = getActivity().getLayoutInflater().inflate(R.layout.pager_item, container, false);
                     container.addView(view);
@@ -248,6 +314,7 @@ public class SlidingTabsBasicFragment extends Fragment {
             }
             return view;
         }
+
 
         /**
          * Destroy the item from the {@link ViewPager}. In our case this is simply removing the

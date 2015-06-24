@@ -25,11 +25,16 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.gcm.GcmListenerService;
+
+import org.json.JSONArray;
 
 public class MyGcmListenerService extends GcmListenerService {
 
@@ -47,23 +52,22 @@ public class MyGcmListenerService extends GcmListenerService {
     public void onMessageReceived(String from, Bundle data) {
         String message = data.getString("message1");
         String title = data.getString("title");
+        String sender = data.getString("sender");
         Log.d(TAG, "From: " + from);
         Log.d(TAG, "Message: " + message);
 
-        SharedPreferences messagefile = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
-        messagefile.edit().putString("message",message).apply();
-        /**
-         * Production applications would usually process the message here.
-         * Eg: - Syncing with server.
-         *     - Store message in local database.
-         *     - Update UI.
-         */
+//        SharedPreferences messagefile = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
+//        messagefile.edit().putString("message",message).apply();
+        SharedPreferences messages_array = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
+        String messages = messages_array.getString("messages", "{}");
+        messages = "[{\"sender\":\"" +sender+"\",\"message\":\""+message+"\"},"+messages.substring(1);
+        Log.i("messages",messages);
+        messages_array.edit().putString("messages", messages).apply();
 
-        /**
-         * In some cases it may be useful to show a notification indicating to the user
-         * that a message was received.
-         */
-        sendNotification(message,title);
+        Intent registrationComplete = new Intent(QuickstartPreferences.NOTIFY);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete);
+        sendNotification(message, title);
+
     }
     // [END receive_message]
 

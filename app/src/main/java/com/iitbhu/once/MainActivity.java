@@ -1,24 +1,34 @@
 package com.iitbhu.once;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.FileOutputStream;
@@ -36,14 +46,28 @@ public class MainActivity extends AppCompatActivity {
     public final static String EXTRA_MESSAGE = "";
     private static final String TAG = "RegIntentService";
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    private RecyclerView.Adapter mAdapter;
+    public BroadcastReceiver mRegistrationBroadcastReceiver;
+    private RecyclerView.LayoutManager mLayoutManager;
+    public boolean dataloaded = false;
+    public boolean dataloaded1 = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean tokenmila = sharedPreferences.getBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false);
+
+        SharedPreferences contactsfile = getSharedPreferences(QuickstartPreferences.CONTACTS, 0);
+        boolean inicnt = contactsfile.getBoolean("inicnt", false);
+        String contacts = contactsfile.getString("contacts", "no contacts");
+        SharedPreferences messagesfile = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
+        boolean inimsg = messagesfile.getBoolean("inimsg", false);
+        String messages = messagesfile.getString("messages", "no messages");
+
 
 
         if (!tokenmila) {
@@ -51,15 +75,27 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
-        else{
-            fetchContacts();
-            fetchMessages();
+        else {
+            if (!inicnt){
+                fetchContacts();
+            }
+            if (!inimsg){
+                fetchMessages();
+            }
         }
 
-        SharedPreferences contactsfile = getSharedPreferences(QuickstartPreferences.CONTACTS, 0);
-        String contacts = contactsfile.getString("contacts", "cpatanahi");
-        SharedPreferences messagesfile = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
-        String messages = messagesfile.getString("messages", "mpatanahi");
+        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                SharedPreferences messagesfile1 = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
+                final String messages1 = messagesfile1.getString("messages", "mpatanahi");
+                updateUI(messages1,1,"messages");
+                showToast("New message received");
+            }
+        };
+
+
         if (savedInstanceState == null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
 
@@ -73,11 +109,25 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+
+
+
+}
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
+                new IntentFilter(QuickstartPreferences.NOTIFY));
+    }
+
+    @Override
+    protected void onPause() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
+        super.onPause();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
@@ -99,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void fetchContacts(){
         showToast("Updating Contacts");
+
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
@@ -107,10 +158,12 @@ public class MainActivity extends AppCompatActivity {
         } else {
             showToast("No network connection available!");
         }
+
+
     }
 
     public void fetchMessages(){
-        showToast("Updating Contacts");
+        showToast("Updating Messages");
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
@@ -123,7 +176,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void broadcastProceed(View view) {
         EditText bmsg = (EditText)findViewById(R.id.edit_broadcast);
-        EditText bmsg_title = (EditText)findViewById(R.id.edit_broadcast_title);
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         String username = sharedPreferences.getString(QuickstartPreferences.USERNAME, "user");
 
@@ -132,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
             // fetch data
-            new DownloadWebpageTask().execute("http://128.199.123.200/broadcastreceive/","username="+username+"&passkey=hellolastry"+"&bmsg="+bmsg.getText()+"&bmsg_title="+bmsg_title.getText());
+            new DownloadWebpageTask().execute("http://128.199.123.200/broadcastreceive/","username="+username+"&passkey=hellolastry"+"&bmsg="+bmsg.getText()+"&bmsg_title="+username+" says..");
         } else {
             showToast("No network connection available!");
         }
@@ -141,6 +193,63 @@ public class MainActivity extends AppCompatActivity {
 
     public void showToast(String text ){
         Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT).show();
+
+    }
+
+    public void updateUI(String newItem, int flag ,String tab){
+        RecyclerView mRecyclerView;
+        if(tab.equals("contacts")){
+            mRecyclerView= (RecyclerView) findViewById(R.id.recyclerView);
+        }
+        else{
+             mRecyclerView= (RecyclerView) findViewById(R.id.recyclerView2);
+        }
+        CustomAdapter adapter =(CustomAdapter) mRecyclerView.getAdapter();
+        adapter.updateItems(newItem,tab);
+        if(flag == 1) {
+            adapter.notifyItemInserted(0);
+        }
+        else{
+            adapter.notifyDataSetChanged();
+        }
+
+    }
+
+    public void updateData(){
+
+        String[] messages = new String[50];
+        SharedPreferences messagefile = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
+        String message_array = messagefile.getString("contacts", "csdpatanahi");
+        try{
+            String msg;
+            String sender;
+            JSONArray jArray = new JSONArray(message_array);
+            for (int i=0; i < jArray.length(); i++)
+            {
+                try {
+                    JSONObject oneObject = jArray.getJSONObject(i);
+                    // Pulling items from the array
+                    msg = oneObject.getString("message");
+                    sender = oneObject.getString("sender");
+                    messages[i] = sender + ": " +msg;
+
+                } catch (JSONException e) {
+                    Log.i("exception", e.toString());
+                }
+            }
+
+        }catch (Exception e){
+
+            Log.i("exception",e.toString());
+
+        }
+
+        mAdapter = new CustomAdapter(messages);
+        RecyclerView mRecyclerView= (RecyclerView) findViewById(R.id.recyclerView2);
+        mLayoutManager = new LinearLayoutManager(this);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setAdapter(mAdapter);
+//        mAdapter.notifyDataSetChanged();
 
     }
 
@@ -167,7 +276,7 @@ public class MainActivity extends AppCompatActivity {
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
-            Toast.makeText(getApplicationContext(), "result: "+result, Toast.LENGTH_LONG).show();
+//            Toast.makeText(getApplicationContext(), "result: "+result, Toast.LENGTH_LONG).show();
 
             try {
                 JSONObject jObject = new JSONObject(result);
@@ -177,30 +286,46 @@ public class MainActivity extends AppCompatActivity {
                     case "fetch_contacts":
                         SharedPreferences contactfile = getSharedPreferences(QuickstartPreferences.CONTACTS, 0);
                         jArray = jObject.getJSONArray("contacts");
-                        contactfile.edit().putString("contacts",jArray.toString()).apply();
+                        contactfile.edit().putString("contacts", jArray.toString()).apply();
+                        contactfile.edit().putBoolean("inicnt", true).apply();
+                        updateUI(jArray.toString(), 0, "contacts");
+                        showToast("Contacts updated");
+                        dataloaded = true;
                         break;
                     case "fetch_messages":
                         SharedPreferences messagefile = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
                         jArray = jObject.getJSONArray("messages");
-                        messagefile.edit().putString("messages",jArray.toString()).apply();
+                        messagefile.edit().putString("messages", jArray.toString()).apply();
+                        messagefile.edit().putBoolean("inimsg", true).apply();
+                        updateUI(jArray.toString(), 0,"messages");
+                        showToast("Messages updated");
+                        dataloaded1 = true;
                         break;
                     case "broadcast_msg":
+                        break;
+                    case "error":
+                        String except = jObject.getString("exception");
+                        Log.i("error",except);
+                        showToast(except);
                         break;
                     default:
                         break;
                 }
             }
             catch (Exception e){
-                Toast.makeText(getApplicationContext(), "onPostExecute: "+e.toString(), Toast.LENGTH_LONG).show();
+//                Toast.makeText(getApplicationContext(), "onPostExecute: "+e.toString(), Toast.LENGTH_LONG).show();
+                Log.i("JSON ka error",e.toString());
+                dataloaded = true;
+                dataloaded1 = true;
             }
-
-            Toast.makeText(getApplicationContext(), "onPostExecute: "+result, Toast.LENGTH_SHORT).show();
+            Log.i("onPostexecute",result);
+//            Toast.makeText(getApplicationContext(), "onPostExecute: "+result, Toast.LENGTH_SHORT).show();
         }
 
 
         private String downloadUrl(String myurl, String postdata) throws IOException {
             InputStream is = null;
-            int len = 50000;
+            int len = 5000000;
             URL url;
             try {
                 url = new URL(myurl);
@@ -222,7 +347,8 @@ public class MainActivity extends AppCompatActivity {
 //                return Integer.toString(statusCode);
 
             } catch (Exception e) {
-                return "downloadUrl: "+e.toString();
+//                showToast("Check your network connection");
+                return  "{\"action\": \"error\",\"exception\":\""+e.toString()+"\"}";
             }
 //        String contentAsString = readIt(myInputStream, len);
 //            return contentAsString;

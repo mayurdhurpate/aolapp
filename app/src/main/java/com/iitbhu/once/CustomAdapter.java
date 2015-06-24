@@ -23,6 +23,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 /**
@@ -32,6 +35,56 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
     private static final String TAG = "CustomAdapter";
 
     private String[] mDataSet;
+
+
+    public void updateItems(String newItem,String tab){
+        mDataSet = new String[mDataSet.length];
+
+        try{
+            String msg;
+            String sender;
+            JSONArray jArray = new JSONArray(newItem);
+            if(tab.equals("contacts")){
+                for (int i = 0; i < jArray.length(); i++)
+
+                {
+                    try {
+                        JSONObject oneObject = jArray.getJSONObject(i);
+                        mDataSet[i] = oneObject.getString("name");
+                    } catch (JSONException e) {
+                        Log.i("exception", e.toString());
+                    }
+                }
+
+            }
+
+
+            else {
+
+                for (int i = 0; i < jArray.length(); i++)
+
+                {
+                    try {
+                        JSONObject oneObject = jArray.getJSONObject(i);
+                        msg = oneObject.getString("message");
+                        sender = oneObject.getString("sender");
+                        mDataSet[i] = sender + ": " + msg;
+
+                    } catch (JSONException e) {
+                        Log.i("exception", e.toString());
+                    }
+                }
+            }
+
+        }catch (Exception e){
+
+            Log.i("exception",e.toString());
+
+        }
+
+    }
+
+
 
     // BEGIN_INCLUDE(recyclerViewSampleViewHolder)
     /**
@@ -78,6 +131,8 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         return new ViewHolder(v);
     }
     // END_INCLUDE(recyclerViewOnCreateViewHolder)
+
+
 
     // BEGIN_INCLUDE(recyclerViewOnBindViewHolder)
     // Replace the contents of a view (invoked by the layout manager)

@@ -6,12 +6,6 @@
     android:orientation="vertical">
 
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/edit_broadcast_title"
-        android:layout_weight="1"
-        android:hint="Broadcast Title"/>
 
     <EditText
         android:layout_width="wrap_content"
@@ -24,6 +18,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/button_proceed"
+        android:layout_marginBottom="200sp"
         android:onClick="broadcastProceed"/>
 
     <!--<ProgressBar-->

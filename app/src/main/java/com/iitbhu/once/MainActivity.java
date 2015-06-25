@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         String contacts = contactsfile.getString("contacts", "no contacts");
         SharedPreferences messagesfile = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
         boolean inimsg = messagesfile.getBoolean("inimsg", false);
-        String messages = messagesfile.getString("messages", "no messages");
+        final String messages = messagesfile.getString("messages", "no messages");
 
 
 
@@ -95,8 +95,8 @@ public class MainActivity extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 SharedPreferences messagesfile1 = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
                 final String messages1 = messagesfile1.getString("messages", "mpatanahi");
-                updateUI(messages1,1,"messages");
-                showToast("New message received");
+                updateUI(messages1,0,"messages");
+                showToast("Messages updated");
             }
         };
 
@@ -159,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
             // fetch data
-            new DownloadWebpageTask().execute("http://128.199.123.200/contacts/","passkey=hellolastry");
+            new DownloadWebpageTask().execute("http://128.199.123.200/contacts/","passkey=hellolastry","fetch_contacts");
         } else {
             showToast("No network connection available!");
         }
@@ -173,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
             // fetch data
-            new DownloadWebpageTask().execute("http://128.199.123.200/messages/","passkey=hellolastry");
+            new DownloadWebpageTask().execute("http://128.199.123.200/messages/","passkey=hellolastry","fetch_messages");
         } else {
             showToast("No network connection available!");
         }
@@ -194,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
             // fetch data
-            new DownloadWebpageTask().execute("http://128.199.123.200/broadcastreceive/","username="+username+"&passkey=hellolastry"+"&bmsg="+bmsg.getText()+"&bmsg_title="+username+" says..");
+            new DownloadWebpageTask().execute("http://128.199.123.200/broadcastreceive/","username="+username+"&passkey=hellolastry"+"&bmsg="+bmsg.getText()+"&bmsg_title="+username+" says..","broadcast_msg");
         } else {
             showToast("No network connection available!");
         }
@@ -208,19 +208,29 @@ public class MainActivity extends AppCompatActivity {
 
     public void updateUI(String newItem, int flag ,String tab){
         RecyclerView mRecyclerView;
+
         if(tab.equals("contacts")){
             mRecyclerView= (RecyclerView) findViewById(R.id.recyclerView);
+            CustomAdapterContacts adapter =(CustomAdapterContacts) mRecyclerView.getAdapter();
+            adapter.updateItems(newItem, tab);
+            if(flag == 1) {
+                adapter.notifyItemInserted(0);
+            }
+            else{
+                adapter.notifyDataSetChanged();
+            }
+
         }
         else{
              mRecyclerView= (RecyclerView) findViewById(R.id.recyclerView2);
-        }
-        CustomAdapter adapter =(CustomAdapter) mRecyclerView.getAdapter();
-        adapter.updateItems(newItem, tab);
-        if(flag == 1) {
-            adapter.notifyItemInserted(0);
-        }
-        else{
-            adapter.notifyDataSetChanged();
+            CustomAdapterMessages adapter =(CustomAdapterMessages) mRecyclerView.getAdapter();
+            adapter.updateItems(newItem, tab);
+            if(flag == 1) {
+                adapter.notifyItemInserted(0);
+            }
+            else{
+                adapter.notifyDataSetChanged();
+            }
         }
 
     }
@@ -238,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
 
             // params comes from the execute() call: params[0] is the url.
             try {
-                String statusCode = downloadUrl(urls[0], urls[1]);
+                String statusCode = downloadUrl(urls[0], urls[1],urls[2]);
                 return statusCode;
 
             } catch (IOException e) {
@@ -281,8 +291,14 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case "error":
                         String except = jObject.getString("exception");
-                        Log.i("error",except);
+                        String type = jObject.getString("type");
+                        Log.i("error", except);
                         showToast(except);
+                        if(type.equals("broadcast_msg")){
+                            pgbar.setVisibility(View.GONE);
+                            bmsg.setEnabled(true);
+                            bbutton.setEnabled(true);
+                        }
                         break;
                     default:
                         break;
@@ -299,7 +315,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        private String downloadUrl(String myurl, String postdata) throws IOException {
+        private String downloadUrl(String myurl, String postdata, String action) throws IOException {
             InputStream is = null;
             int len = 5000000;
             URL url;
@@ -324,7 +340,7 @@ public class MainActivity extends AppCompatActivity {
 
             } catch (Exception e) {
 //                showToast("Check your network connection");
-                return  "{\"action\": \"error\",\"exception\":\""+e.toString()+"\"}";
+                return  "{\"action\": \"error\",\"exception\":\""+e.toString()+"\",\"type\":\""+action+"\"}";
             }
 //        String contentAsString = readIt(myInputStream, len);
 //            return contentAsString;

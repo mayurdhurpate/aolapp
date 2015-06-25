@@ -102,6 +102,19 @@ public class SlidingTabsBasicFragment extends Fragment {
         mSlidingTabLayout = (SlidingTabLayout) view.findViewById(R.id.sliding_tabs);
         mSlidingTabLayout.setDistributeEvenly(true);
         mSlidingTabLayout.setViewPager(mViewPager);
+
+        //setting indicator and divider color
+        mSlidingTabLayout.setCustomTabColorizer(new SlidingTabLayout.TabColorizer() {
+
+            @Override
+            public int getIndicatorColor(int position) {
+                return getResources().getColor(R.color.maroon);    //define any color in xml resources and set it here, I have used white
+            }
+        });
+
+
+
+
         // END_INCLUDE (setup_slidingtablayout)
     }
     // END_INCLUDE (fragment_onviewcreated)
@@ -185,11 +198,12 @@ public class SlidingTabsBasicFragment extends Fragment {
                     String contacts_array = bundle.getString(QuickstartPreferences.CONTACTS, "No contacts");
                     try{
                         JSONArray jArray = new JSONArray(contacts_array);
-                        for (int i=0; i < jArray.length(); i++)
+                        for (int i=0; i < jArray.length(); i=i+1)
                         {
                             try {
                                 JSONObject oneObject = jArray.getJSONObject(i);
-                                contacts[i]= oneObject.getString("name");
+                                contacts[2*i]= oneObject.getString("name");
+                                contacts[2*i+1] = "Member";
 
                             } catch (JSONException e) {
                                 Log.i("exception",e.toString());
@@ -204,7 +218,7 @@ public class SlidingTabsBasicFragment extends Fragment {
 
 
 
-                    mAdapter = new CustomAdapter(contacts);
+                    mAdapter = new CustomAdapterContacts(contacts);
                     mRecyclerView.setAdapter(mAdapter);
                     final SwipeRefreshLayout mSwipeRefreshLayout = (SwipeRefreshLayout)view.findViewById(R.id.activity_main_swipe_refresh_layout);
                     mSwipeRefreshLayout.setColorSchemeResources(R.color.orange, R.color.green, R.color.blue);
@@ -254,14 +268,15 @@ public class SlidingTabsBasicFragment extends Fragment {
                         String msg;
                         String sender;
                         JSONArray jArray = new JSONArray(messages_array);
-                        for (int i=0; i < jArray.length(); i++)
+                        for (int i=0; i < jArray.length(); i=i+1)
 
                         {
                             try {
                                 JSONObject oneObject = jArray.getJSONObject(i);
                                 msg = oneObject.getString("message");
                                 sender = oneObject.getString("sender");
-                                messages[i] = sender + ": " +msg;
+                                messages[2*i] = sender;
+                                messages[2*i+1] = msg;
 
                             } catch (JSONException e) {
                                 Log.i("exception",e.toString());
@@ -273,7 +288,7 @@ public class SlidingTabsBasicFragment extends Fragment {
                         Log.i("exception",e.toString());
 
                     }
-                    mAdapter = new CustomAdapter(messages);
+                    mAdapter = new CustomAdapterMessages(messages);
                     mRecyclerView.setAdapter(mAdapter);
                     final SwipeRefreshLayout mSwipeRefreshLayout1 = (SwipeRefreshLayout)view.findViewById(R.id.activity_main_swipe_refresh_layout);
                     mSwipeRefreshLayout1.setColorSchemeResources(R.color.orange, R.color.green, R.color.blue);

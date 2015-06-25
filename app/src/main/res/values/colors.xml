@@ -10,5 +10,8 @@
     <color name="sky_blue">#58ACFA</color>
     <color name="sky_blue2">#084B8A</color>
     <color name="black">#000000</color>
+    <color name="white">#ffffff</color>
+    <color name="maroon">#930c0c</color>
+    <color name="dark_orange">#e46f0d</color>
 
 </resources>

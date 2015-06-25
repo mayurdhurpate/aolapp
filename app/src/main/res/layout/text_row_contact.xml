@@ -22,23 +22,18 @@
     android:layout_marginRight="@dimen/margin_medium"
     android:gravity="center_vertical">
 
-
-
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/textViewSender"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:paddingTop="10sp"
+        android:textSize="18sp"
+        android:paddingTop="8sp"
         android:paddingLeft="5sp"
-        android:paddingBottom="10sp"
-        android:textColor="@color/white"
-        android:text="@string/element_text"/>
+        android:textColor="@color/black" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/maroon" />
-
+        android:background="@color/dark_orange" />
 
 </FrameLayout>

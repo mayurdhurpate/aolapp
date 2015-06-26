@@ -196,6 +196,7 @@ public class SlidingTabsBasicFragment extends Fragment {
 //                    contacts[1] = "ggg";
 
                     String contacts_array = bundle.getString(QuickstartPreferences.CONTACTS, "No contacts");
+                    Log.i("contacts_array",contacts_array);
                     try{
                         JSONArray jArray = new JSONArray(contacts_array);
                         for (int i=0; i < jArray.length(); i=i+1)
@@ -206,13 +207,13 @@ public class SlidingTabsBasicFragment extends Fragment {
                                 contacts[2*i+1] = "Member";
 
                             } catch (JSONException e) {
-                                Log.i("exception",e.toString());
+                                Log.i("excep_sliding_conts1",e.toString());
                             }
                         }
 
                     }catch (Exception e){
 
-                    Log.i("exception",e.toString());
+                    Log.i("excep_sliding_conts2",e.toString());
 
                 }
 
@@ -221,7 +222,7 @@ public class SlidingTabsBasicFragment extends Fragment {
                     mAdapter = new CustomAdapterContacts(contacts);
                     mRecyclerView.setAdapter(mAdapter);
                     final SwipeRefreshLayout mSwipeRefreshLayout = (SwipeRefreshLayout)view.findViewById(R.id.activity_main_swipe_refresh_layout);
-                    mSwipeRefreshLayout.setColorSchemeResources(R.color.orange, R.color.green, R.color.blue);
+                    mSwipeRefreshLayout.setColorSchemeResources(R.color.orange, R.color.dark_orange, R.color.maroon);
                      final Runnable refreshing = new Runnable() {
                         public void run() {
                             try {
@@ -279,19 +280,19 @@ public class SlidingTabsBasicFragment extends Fragment {
                                 messages[2*i+1] = msg;
 
                             } catch (JSONException e) {
-                                Log.i("exception",e.toString());
+                                Log.i("excep_sliding_msgs1",e.toString());
                             }
                         }
 
                     }catch (Exception e){
 
-                        Log.i("exception",e.toString());
+                        Log.i("excep_sliding_msgs1",e.toString());
 
                     }
                     mAdapter = new CustomAdapterMessages(messages);
                     mRecyclerView.setAdapter(mAdapter);
                     final SwipeRefreshLayout mSwipeRefreshLayout1 = (SwipeRefreshLayout)view.findViewById(R.id.activity_main_swipe_refresh_layout);
-                    mSwipeRefreshLayout1.setColorSchemeResources(R.color.orange, R.color.green, R.color.blue);
+                    mSwipeRefreshLayout1.setColorSchemeResources(R.color.orange, R.color.dark_orange, R.color.maroon);
                     final Runnable refreshing1 = new Runnable() {
                         public void run() {
                             try {

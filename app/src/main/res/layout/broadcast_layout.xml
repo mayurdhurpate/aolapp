@@ -13,19 +13,28 @@
         <!--android:indeterminate="true"-->
         <!--android:progressDrawable="@color/sky_blue"-->
         <!--android:layout_marginRight="5dp" />-->
+    <TextView
+        android:id="@+id/improvetext"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="What should we improve?"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:layout_marginTop="5sp"
+        android:layout_weight="2"/>
 
     <EditText
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/edit_broadcast"
-        android:layout_weight="2"
+        android:layout_weight="1"
         android:hint="Broadcast Message"/>
 
     <Button
         android:id="@+id/bbutton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/button_proceed"
+        android:text="THIS..."
         android:layout_marginBottom="200sp"
         android:onClick="broadcastProceed"/>
 

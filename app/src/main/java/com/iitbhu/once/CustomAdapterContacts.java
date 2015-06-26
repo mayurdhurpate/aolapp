@@ -38,12 +38,12 @@ public class CustomAdapterContacts extends RecyclerView.Adapter<CustomAdapterCon
 
 
     public void updateItems(String newItem,String tab){
+        Log.i("newitem",newItem);
         mDataSet = new String[mDataSet.length];
 
         try{
-            String msg;
-            String sender;
             JSONArray jArray = new JSONArray(newItem);
+
 
                 for (int i = 0; i < jArray.length(); i=i+1)
 
@@ -53,7 +53,7 @@ public class CustomAdapterContacts extends RecyclerView.Adapter<CustomAdapterCon
                         mDataSet[2*i] = oneObject.getString("name");
                         mDataSet[2*i+1] = "Member";
                     } catch (JSONException e) {
-                        Log.i("exception", e.toString());
+                        Log.i("excep_adapt_cnts1", e.toString());
                     }
                 }
 
@@ -63,7 +63,7 @@ public class CustomAdapterContacts extends RecyclerView.Adapter<CustomAdapterCon
 
         catch (Exception e){
 
-            Log.i("exception",e.toString());
+            Log.i("excep_adapt_cnts2",e.toString());
 
         }
 

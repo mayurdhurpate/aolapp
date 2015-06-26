@@ -59,14 +59,14 @@ public class CustomAdapterMessages extends RecyclerView.Adapter<CustomAdapterMes
                         mDataSet[2*i+1] = msg;
 
                     } catch (JSONException e) {
-                        Log.i("exception", e.toString());
+                        Log.i("excep_adapt_msgs1", e.toString());
                     }
                 }
 
 
         }catch (Exception e){
 
-            Log.i("exception",e.toString());
+            Log.i("excep_adapt_msgs2",e.toString());
 
         }
 

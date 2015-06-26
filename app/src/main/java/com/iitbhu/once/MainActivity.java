@@ -8,31 +8,23 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
-
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -55,13 +47,12 @@ public class MainActivity extends AppCompatActivity {
     public ProgressBar pgbar;
     public EditText bmsg;
     public Button bbutton;
+    public TextView imtxt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         boolean tokenmila = sharedPreferences.getBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false);
@@ -72,8 +63,6 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences messagesfile = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
         boolean inimsg = messagesfile.getBoolean("inimsg", false);
         final String messages = messagesfile.getString("messages", "no messages");
-
-
 
         if (!tokenmila) {
             Intent intent = new Intent(this, Welcome.class);
@@ -100,10 +89,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-
-        if (savedInstanceState == null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-
             SlidingTabsBasicFragment fragment = new SlidingTabsBasicFragment();
             Bundle bundle = new Bundle();
             bundle.putString(QuickstartPreferences.CONTACTS,contacts);
@@ -111,22 +97,17 @@ public class MainActivity extends AppCompatActivity {
             fragment.setArguments(bundle);
             transaction.replace(R.id.sample_content_fragment, fragment);
             transaction.commit();
-        }
-
-
-
-
 
 }
     @Override
-    protected void onResume() {
+    protected void onResume(){
         super.onResume();
         LocalBroadcastManager.getInstance(this).registerReceiver(mRegistrationBroadcastReceiver,
                 new IntentFilter(QuickstartPreferences.NOTIFY));
     }
 
     @Override
-    protected void onPause() {
+    protected void onPause(){
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mRegistrationBroadcastReceiver);
         super.onPause();
     }
@@ -143,39 +124,38 @@ public class MainActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
     public void fetchContacts(){
-        showToast("Updating Contacts");
 
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
             // fetch data
+            showToast("Updating Contacts");
             new DownloadWebpageTask().execute("http://128.199.123.200/contacts/","passkey=hellolastry","fetch_contacts");
         } else {
             showToast("No network connection available!");
+            dataloaded = true;
         }
-
-
     }
 
     public void fetchMessages(){
-        showToast("Updating Messages");
+
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
             // fetch data
+            showToast("Updating Messages");
             new DownloadWebpageTask().execute("http://128.199.123.200/messages/","passkey=hellolastry","fetch_messages");
         } else {
             showToast("No network connection available!");
+            dataloaded1 = true;
         }
     }
 
@@ -185,18 +165,25 @@ public class MainActivity extends AppCompatActivity {
         bmsg.setEnabled(false);
         bbutton = (Button)findViewById(R.id.bbutton);
         bbutton.setEnabled(false);
+        imtxt = (TextView)findViewById(R.id.improvetext);
+        imtxt.setText("");
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         String username = sharedPreferences.getString(QuickstartPreferences.USERNAME, "user");
 
-        showToast("Sending message");
+
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
             // fetch data
+            showToast("Sending message");
             new DownloadWebpageTask().execute("http://128.199.123.200/broadcastreceive/","username="+username+"&passkey=hellolastry"+"&bmsg="+bmsg.getText()+"&bmsg_title="+username+" says..","broadcast_msg");
         } else {
             showToast("No network connection available!");
+            pgbar.setVisibility(View.GONE);
+            bmsg.setEnabled(true);
+            bbutton.setEnabled(true);
+
         }
 
     }
@@ -222,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
 
         }
         else{
-             mRecyclerView= (RecyclerView) findViewById(R.id.recyclerView2);
+            mRecyclerView= (RecyclerView) findViewById(R.id.recyclerView2);
             CustomAdapterMessages adapter =(CustomAdapterMessages) mRecyclerView.getAdapter();
             adapter.updateItems(newItem, tab);
             if(flag == 1) {
@@ -232,11 +219,7 @@ public class MainActivity extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
             }
         }
-
     }
-
-
-
 
 
 
@@ -288,6 +271,7 @@ public class MainActivity extends AppCompatActivity {
                         pgbar.setVisibility(View.GONE);
                         bmsg.setEnabled(true);
                         bbutton.setEnabled(true);
+                        imtxt.setText("");
                         break;
                     case "error":
                         String except = jObject.getString("exception");
@@ -298,6 +282,7 @@ public class MainActivity extends AppCompatActivity {
                             pgbar.setVisibility(View.GONE);
                             bmsg.setEnabled(true);
                             bbutton.setEnabled(true);
+                            imtxt.setText("");
                         }
                         break;
                     default:

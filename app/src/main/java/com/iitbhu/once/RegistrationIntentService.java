@@ -32,6 +32,10 @@ import com.google.android.gms.gcm.GcmPubSub;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -40,6 +44,7 @@ import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class RegistrationIntentService extends IntentService {
 
@@ -72,11 +77,15 @@ public class RegistrationIntentService extends IntentService {
 
 
                 Log.i(TAG, "GCM Registration Token: " + token);
-                String username = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
+                String email = intent.getStringExtra("email");
+                String googlePlusId = intent.getStringExtra("googlePlusId");
+                String googlePlusPhoto = intent.getStringExtra("image");
+                String name = intent.getStringExtra("name");
+                String phone = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
 
 
                 // TODO: Implement this method to send any registration to your app's servers.
-                sendRegistrationToServer(token,username);
+                sendRegistrationToServer(token, email, phone, googlePlusPhoto, googlePlusId, name);
 //                notifytoui(token);
 
                 // Subscribe to topic channels
@@ -86,7 +95,18 @@ public class RegistrationIntentService extends IntentService {
                 // sent to your server. If the boolean is false, send the token to your server,
                 // otherwise your server should have already received the token.
                 sharedPreferences.edit().putBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, true).apply();
-                sharedPreferences.edit().putString(QuickstartPreferences.USERNAME,username).apply();
+                sharedPreferences.edit().putString(QuickstartPreferences.USERNAME, name).apply();
+                sharedPreferences.edit().putString(QuickstartPreferences.EMAIL, email).apply();
+
+                SharedPreferences userFile = getSharedPreferences(QuickstartPreferences.USERDATA, 0);
+                userFile.edit().putString("email", email).apply();
+                userFile.edit().putString("name", name).apply();
+                userFile.edit().putString("googlePlusId", googlePlusId).apply();
+                userFile.edit().putString("image", googlePlusPhoto).apply();
+                userFile.edit().putString("phone", phone).apply();
+                userFile.edit().putString("token", token).apply();
+
+
                 // [END register_for_gcm]
             }
         } catch (Exception e) {
@@ -107,7 +127,7 @@ public class RegistrationIntentService extends IntentService {
     }
 
 
-    private void sendRegistrationToServer(String token,String username) {
+    private void sendRegistrationToServer(String token,String email, String phone, String image, String id, String name) {
 
 
         ConnectivityManager connMgr = (ConnectivityManager)
@@ -115,7 +135,7 @@ public class RegistrationIntentService extends IntentService {
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
             // fetch data
-            new DownloadWebpageTask().execute("http://128.199.123.200/register/","name="+username+"&token="+token+"&passkey=hellolastry");
+            new DownloadWebpageTask().execute("http://128.199.123.200/register/","name="+name+"&token="+token+"&passkey=hellolastry"+"&email="+email+"&social_id="+id+"&image_url="+image+"&phone_no="+phone);
         } else {
             // display error
             Context con = getApplicationContext();
@@ -126,43 +146,57 @@ public class RegistrationIntentService extends IntentService {
             toast1.show();
 
         }
-        Intent registrationComplete = new Intent(QuickstartPreferences.REGISTRATION_COMPLETE);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete);
-
 
     }
 
+    private void sendBroadcast(){
+        Log.i("sendBroadcast", "log");
+//        Toast.makeText(getApplicationContext(),"sendBroadcast",Toast.LENGTH_SHORT).show();
+        Intent registrationComplete = new Intent(QuickstartPreferences.REGISTRATION_COMPLETE);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete);
+    }
 
 
 
      public class DownloadWebpageTask extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String... urls) {
+         @Override
+         protected String doInBackground(String... urls) {
 
-            // params comes from the execute() call: params[0] is the url.
-            try {
-                String statusCode =  downloadUrl(urls[0],urls[1]);
+             // params comes from the execute() call: params[0] is the url.
+             try {
+                 String statusCode = downloadUrl(urls[0], urls[1]);
 
 
+                 return statusCode;
 
-                return statusCode;
+             } catch (IOException e) {
+                 return "Unable to retrieve web page. URL may be invalid.";
+             }
+         }
 
-            } catch (IOException e) {
-                return "Unable to retrieve web page. URL may be invalid.";
-            }
-        }
-        // onPostExecute displays the results of the AsyncTask.
-        @Override
-        protected void onPostExecute(String result) {
-            Context context = getApplicationContext();
-            CharSequence text = result;
-            int duration = Toast.LENGTH_SHORT;
+         // onPostExecute displays the results of the AsyncTask.
+         @Override
+         protected void onPostExecute(String result) {
+             String res;
+             try {
+                 JSONObject jsonObject = new JSONObject(result);
+                 res = jsonObject.getString("message");
+                 if (res.equals("User Registered")) {
+//                     Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
+                     sendBroadcast();
+                 } else {
+                     Toast.makeText(getApplicationContext(), "else" + result, Toast.LENGTH_LONG).show();
+                 }
+             } catch (Exception e) {
+                 Log.e("json at result", e.toString());
 
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.show();
+             }
 
-        }
-    }
+             Log.i("Result", result);
+
+         }
+     }
+
 
 
     private String downloadUrl(String myurl, String postdata) throws IOException{
@@ -174,6 +208,7 @@ public class RegistrationIntentService extends IntentService {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
             conn.setRequestMethod("POST");
+            conn.setConnectTimeout(5000);
             conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
             OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
@@ -183,10 +218,10 @@ public class RegistrationIntentService extends IntentService {
 
             is = conn.getInputStream();
             //Convert the InputStream into a string
-//            String contentAsString = readIt(is, len);
-//            return contentAsString;
-            int statusCode = conn.getResponseCode();
-            return Integer.toString(statusCode);
+            String contentAsString = readIt(is, len);
+            return contentAsString;
+//            int statusCode = conn.getResponseCode();
+//            return Integer.toString(statusCode);
 
         } catch (Exception e) {
             //handle the exception !

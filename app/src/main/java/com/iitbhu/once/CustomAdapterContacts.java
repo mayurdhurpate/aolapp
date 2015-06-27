@@ -190,6 +190,7 @@ public class CustomAdapterContacts extends RecyclerView.Adapter<CustomAdapterCon
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
+        Log.i("ItemCount",mDataSet[0]+mDataSet[1]);
         int i;
         boolean p;
         for (i=0; i <mDataSet.length ; i++) {

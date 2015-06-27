@@ -19,7 +19,13 @@ package com.iitbhu.once;
 public class QuickstartPreferences {
 
     public static final String SENT_TOKEN_TO_SERVER = "sentTokenToServer";
+
     public static final String USERNAME = "user1223";
+    public static final String EMAIL = "email";
+
+    public static final String USERDATA = "userData";
+
+
     public static final String REGISTRATION_COMPLETE = "registrationComplete";
     public static final String MESSAGES = "message";
     public static final String CONTACTS = "contacts";

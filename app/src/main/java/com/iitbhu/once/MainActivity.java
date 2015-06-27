@@ -168,8 +168,12 @@ public class MainActivity extends AppCompatActivity {
         imtxt = (TextView)findViewById(R.id.improvetext);
         imtxt.setText("");
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String username = sharedPreferences.getString(QuickstartPreferences.USERNAME, "user");
+        SharedPreferences userFile = getSharedPreferences(QuickstartPreferences.USERDATA, 0);
+        String username = userFile.getString("name", "user");
+        String email = userFile.getString("email","no_email");
+        String token = userFile.getString("token", "no_token");
+
+
 
 
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -177,12 +181,13 @@ public class MainActivity extends AppCompatActivity {
         if (networkInfo != null && networkInfo.isConnected()) {
             // fetch data
             showToast("Sending message");
-            new DownloadWebpageTask().execute("http://128.199.123.200/broadcastreceive/","username="+username+"&passkey=hellolastry"+"&bmsg="+bmsg.getText()+"&bmsg_title="+username+" says..","broadcast_msg");
+            new DownloadWebpageTask().execute("http://128.199.123.200/broadcastreceive/","username="+username+"&token="+token+"&email="+email+"&passkey=hellolastry"+"&bmsg="+bmsg.getText()+"&bmsg_title="+username+" says..","broadcast_msg");
         } else {
             showToast("No network connection available!");
             pgbar.setVisibility(View.GONE);
             bmsg.setEnabled(true);
             bbutton.setEnabled(true);
+            imtxt.setText(R.string.imtxt);
 
         }
 
@@ -247,6 +252,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 JSONObject jObject = new JSONObject(result);
                 String action = jObject.getString("action");
+
                 JSONArray jArray;
                 switch (action){
                     case "fetch_contacts":
@@ -268,10 +274,14 @@ public class MainActivity extends AppCompatActivity {
                         dataloaded1 = true;
                         break;
                     case "broadcast_msg":
+                        String error = jObject.getString("error");
+                        if(error.equals("true")){
+                            Toast.makeText(getApplicationContext(),"Please login again",Toast.LENGTH_SHORT).show();
+                        }
                         pgbar.setVisibility(View.GONE);
                         bmsg.setEnabled(true);
                         bbutton.setEnabled(true);
-                        imtxt.setText("");
+                        imtxt.setText(R.string.imtxt);
                         break;
                     case "error":
                         String except = jObject.getString("exception");
@@ -282,7 +292,13 @@ public class MainActivity extends AppCompatActivity {
                             pgbar.setVisibility(View.GONE);
                             bmsg.setEnabled(true);
                             bbutton.setEnabled(true);
-                            imtxt.setText("");
+                            imtxt.setText(R.string.imtxt);
+                        }
+                        else if(type.equals("fetch_messages")){
+                            dataloaded1 = true;
+                        }
+                        else {
+                            dataloaded = true;
                         }
                         break;
                     default:
@@ -303,6 +319,7 @@ public class MainActivity extends AppCompatActivity {
         private String downloadUrl(String myurl, String postdata, String action) throws IOException {
             InputStream is = null;
             int len = 5000000;
+            Log.i("postdata",postdata);
             URL url;
             try {
                 url = new URL(myurl);
@@ -317,13 +334,16 @@ public class MainActivity extends AppCompatActivity {
                 wr.close();
 
                 is = conn.getInputStream();
-                //Convert the InputStream into a string
+                int statusCode = conn.getResponseCode();
+                Log.i("statuscode",Integer.toString(statusCode));
+//                showToast(Integer.toString(statusCode));
+//                Convert the InputStream into a string
                 String contentAsString = readIt(is, len);
                 return contentAsString;
-//                int statusCode = conn.getResponseCode();
-//                return Integer.toString(statusCode);
 
-            } catch (Exception e) {
+
+            } catch (IOException e) {
+                Log.i("printstack",e.toString());
 //                showToast("Check your network connection");
                 return  "{\"action\": \"error\",\"exception\":\""+e.toString()+"\",\"type\":\""+action+"\"}";
             }

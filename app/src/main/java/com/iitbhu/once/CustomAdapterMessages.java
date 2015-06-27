@@ -16,6 +16,8 @@
 
 package com.iitbhu.once;
 
+import android.content.Intent;
+import android.provider.CalendarContract;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -26,6 +28,8 @@ import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.Calendar;
 
 
 /**
@@ -90,7 +94,9 @@ public class CustomAdapterMessages extends RecyclerView.Adapter<CustomAdapterMes
 //            v.setOnClickListener(new View.OnClickListener() {
 //                @Override
 //                public void onClick(View v) {
-//                    Log.d(TAG, "Element " + getPosition() + " clicked.");
+////                    Log.d(TAG, "Element " + getPosition() + " clicked.");
+//                    /***************test calender***********/
+//
 //                }
 //            });
             switch (viewType){
@@ -183,6 +189,25 @@ public class CustomAdapterMessages extends RecyclerView.Adapter<CustomAdapterMes
                 break;
 //                viewHolder.getItemId();
         }
+
+        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                Calendar beginTime = Calendar.getInstance();
+                beginTime.set(2012, 0, 19, 7, 30);
+                Calendar endTime = Calendar.getInstance();
+                endTime.set(2012, 0, 19, 8, 30);
+                Intent intent = new Intent(Intent.ACTION_INSERT)
+                        .setData(CalendarContract.Events.CONTENT_URI)
+                        .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, beginTime.getTimeInMillis())
+                        .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, endTime.getTimeInMillis())
+                        .putExtra(CalendarContract.Events.TITLE, "Yoga")
+                        .putExtra(CalendarContract.Events.DESCRIPTION, "Group class")
+                        .putExtra(CalendarContract.Events.EVENT_LOCATION, "The gym")
+                        .putExtra(CalendarContract.Events.AVAILABILITY, CalendarContract.Events.AVAILABILITY_BUSY)
+                        .putExtra(Intent.EXTRA_EMAIL, "rowan@example.com,trevor@example.com");
+                v.getContext().startActivity(intent);
+            }
+        });
 
     }
     // END_INCLUDE(recyclerViewOnBindViewHolder)

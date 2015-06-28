@@ -59,10 +59,41 @@ public class MainActivity extends AppCompatActivity {
 
         SharedPreferences contactsfile = getSharedPreferences(QuickstartPreferences.CONTACTS, 0);
         boolean inicnt = contactsfile.getBoolean("inicnt", false);
-        String contacts = contactsfile.getString("contacts", "no contacts");
+
         SharedPreferences messagesfile = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
         boolean inimsg = messagesfile.getBoolean("inimsg", false);
-        final String messages = messagesfile.getString("messages", "no messages");
+
+
+
+
+        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                SharedPreferences messagesfile1 = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
+                final String messages1 = messagesfile1.getString("messages", "mpatanahi");
+                updateUI(messages1,0,"messages");
+                showToast("Messages updated");
+            }
+        };
+
+        SharedPreferences contactsfile1 = getSharedPreferences(QuickstartPreferences.CONTACTS, 0);
+        String contacts = contactsfile1.getString("contacts", "no contacts");
+        SharedPreferences messagesfile1 = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
+        String messages = messagesfile1.getString("messages", "no messages");
+
+        if(savedInstanceState==null) {
+
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            SlidingTabsBasicFragment fragment = new SlidingTabsBasicFragment();
+            Bundle bundle = new Bundle();
+            bundle.putString("contacts", contacts);
+            bundle.putString("messages", messages);
+            fragment.setArguments(bundle);
+            transaction.replace(R.id.sample_content_fragment, fragment);
+            transaction.commit();
+
+        }
 
         if (!tokenmila) {
             Intent intent = new Intent(this, Welcome.class);
@@ -78,25 +109,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
 
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                SharedPreferences messagesfile1 = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
-                final String messages1 = messagesfile1.getString("messages", "mpatanahi");
-                updateUI(messages1,0,"messages");
-                showToast("Messages updated");
-            }
-        };
-
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            SlidingTabsBasicFragment fragment = new SlidingTabsBasicFragment();
-            Bundle bundle = new Bundle();
-            bundle.putString(QuickstartPreferences.CONTACTS,contacts);
-            bundle.putString(QuickstartPreferences.MESSAGES,messages);
-            fragment.setArguments(bundle);
-            transaction.replace(R.id.sample_content_fragment, fragment);
-            transaction.commit();
 
 }
     @Override
@@ -201,9 +214,9 @@ public class MainActivity extends AppCompatActivity {
     public void updateUI(String newItem, int flag ,String tab){
         RecyclerView mRecyclerView;
 
-        if(tab.equals("contacts")){
-            mRecyclerView= (RecyclerView) findViewById(R.id.recyclerView);
-            CustomAdapterContacts adapter =(CustomAdapterContacts) mRecyclerView.getAdapter();
+        if(tab.equals("messages")){
+            mRecyclerView= (RecyclerView) findViewById(R.id.recyclerView2);
+            CustomAdapterMessages adapter =(CustomAdapterMessages) mRecyclerView.getAdapter();
             adapter.updateItems(newItem, tab);
             if(flag == 1) {
                 adapter.notifyItemInserted(0);
@@ -214,8 +227,8 @@ public class MainActivity extends AppCompatActivity {
 
         }
         else{
-            mRecyclerView= (RecyclerView) findViewById(R.id.recyclerView2);
-            CustomAdapterMessages adapter =(CustomAdapterMessages) mRecyclerView.getAdapter();
+            mRecyclerView= (RecyclerView) findViewById(R.id.recyclerView);
+            CustomAdapterContacts adapter =(CustomAdapterContacts) mRecyclerView.getAdapter();
             adapter.updateItems(newItem, tab);
             if(flag == 1) {
                 adapter.notifyItemInserted(0);

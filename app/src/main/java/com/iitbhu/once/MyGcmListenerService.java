@@ -35,6 +35,8 @@ import android.widget.Toast;
 import com.google.android.gms.gcm.GcmListenerService;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MyGcmListenerService extends GcmListenerService {
 
@@ -50,23 +52,45 @@ public class MyGcmListenerService extends GcmListenerService {
     // [START receive_message]
     @Override
     public void onMessageReceived(String from, Bundle data) {
-        String message = data.getString("message1");
-        String title = data.getString("title");
-        String sender = data.getString("sender");
-        Log.d(TAG, "From: " + from);
-        Log.d(TAG, "Message: " + message);
+        Log.i("message aaya","sd");
+        SharedPreferences messagefile;
 
-//        SharedPreferences messagefile = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
-//        messagefile.edit().putString("message",message).apply();
-        SharedPreferences messages_array = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
-        String messages = messages_array.getString("messages", "{}");
-        messages = "[{\"sender\":\"" +sender+"\",\"message\":\""+message+"\"},"+messages.substring(1);
-        Log.i("messages",messages);
-        messages_array.edit().putString("messages", messages).apply();
+        messagefile = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
+        String messages_array = messagefile.getString("messages", "no_messages");
+        int lastid = 0;
+                try{
+                    JSONArray jArray = new JSONArray(messages_array);
+                    JSONObject oneObject = jArray.getJSONObject(0);
+                    lastid = oneObject.getInt("id");
 
-        Intent registrationComplete = new Intent(QuickstartPreferences.NOTIFY);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete);
-        sendNotification(message, title);
+                }catch (Exception e){
+
+                    Log.i("excep_gcm_msgs1",e.toString());
+
+                }
+        Log.i("lastid", Integer.toString(lastid));
+
+        String newidstring = data.getString("id");
+        int newid = Integer.parseInt(newidstring);
+        Log.i("newid",data.getString("id"));
+
+        if(newid>lastid) {
+            String message = data.getString("message1");
+            String title = data.getString("title");
+            String sender = data.getString("sender");
+            Log.d(TAG, "From: " + from);
+            Log.d(TAG, "Message: " + message);
+            Log.d(TAG, "id: " + newid);
+//            SharedPreferences messages_array = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
+            String messages = messagefile.getString("messages", "{}");
+            messages = "[{\"sender\":\"" + sender + "\",\"message\":\"" + message + "\",\"id\":"+newid+ "}," + messages.substring(1);
+            Log.i("messages", messages);
+            messagefile.edit().putString("messages", messages).apply();
+
+            Intent msgReceived = new Intent(QuickstartPreferences.NOTIFY);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(msgReceived);
+            sendNotification(message, title);
+        }
 
     }
     // [END receive_message]

@@ -191,13 +191,14 @@ public class CustomAdapterContacts extends RecyclerView.Adapter<CustomAdapterCon
     @Override
     public int getItemCount() {
         Log.i("ItemCount",mDataSet[0]+mDataSet[1]);
+        Log.i("Items",Integer.toString(mDataSet.length));
         int i;
         boolean p;
         for (i=0; i <mDataSet.length ; i++) {
             try{
                 p = mDataSet[i].equals("");
             }catch (Exception e){
-                Log.i("ItemCount",e.toString());
+//                Log.i("ItemCount",e.toString());
                 break;
             }
         }

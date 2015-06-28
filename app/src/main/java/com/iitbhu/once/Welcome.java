@@ -44,7 +44,7 @@ public class Welcome extends AppCompatActivity implements
 
 
 
-    private static final String TAG = "RegIntentService";
+    private static final String TAG = "Welcome";
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
     public BroadcastReceiver mRegistrationBroadcastReceiver;
@@ -105,14 +105,14 @@ public class Welcome extends AppCompatActivity implements
                 // Could not resolve the connection result, show the user an
                 // error dialog.
 //                showErrorDialog(connectionResult);
-                mRegistrationProgressBar.setVisibility(View.GONE);
+                mRegistrationProgressBar.setVisibility(View.INVISIBLE);
 //                Toast.makeText(getApplicationContext(), connectionResult.toString(), Toast.LENGTH_LONG).show();
                 Toast.makeText(getApplicationContext(),"Poor network connection", Toast.LENGTH_LONG).show();
             }
         } else {
             // Show the signed-out UI
 //            showSignedOutUI();
-            mRegistrationProgressBar.setVisibility(View.GONE);
+            mRegistrationProgressBar.setVisibility(View.INVISIBLE);
 //            Toast.makeText(getApplicationContext(), "Debug:Show the signed-out UI", Toast.LENGTH_LONG).show();
         }
     }
@@ -155,7 +155,7 @@ public class Welcome extends AppCompatActivity implements
         editText.setEnabled(true);
         proceedbutton.setEnabled(true);
         mRegistrationProgressBar = (ProgressBar) findViewById(R.id.registrationProgressBar);
-        mRegistrationProgressBar.setVisibility(ProgressBar.GONE);
+        mRegistrationProgressBar.setVisibility(ProgressBar.INVISIBLE);
         editText = (EditText)findViewById(R.id.edit_phone);
         proceedbutton = (Button)findViewById(R.id.buttonProceed);
         editText.setEnabled(true);
@@ -163,7 +163,7 @@ public class Welcome extends AppCompatActivity implements
         editText.setVisibility(View.VISIBLE);
         proceedbutton.setVisibility(View.VISIBLE);
         SignInButton gplus = (SignInButton)findViewById(R.id.sign_in_button);
-        gplus.setVisibility(View.GONE);
+        gplus.setVisibility(View.INVISIBLE);
 
 
     }
@@ -190,19 +190,19 @@ public class Welcome extends AppCompatActivity implements
 
 
         mRegistrationProgressBar = (ProgressBar) findViewById(R.id.registrationProgressBar);
-        mRegistrationProgressBar.setVisibility(ProgressBar.GONE);
+        mRegistrationProgressBar.setVisibility(ProgressBar.INVISIBLE);
 
         editText = (EditText)findViewById(R.id.edit_phone);
         proceedbutton = (Button)findViewById(R.id.buttonProceed);
         editText.setEnabled(false);
         proceedbutton.setEnabled(false);
-        editText.setVisibility(View.GONE);
-        proceedbutton.setVisibility(View.GONE);
+        editText.setVisibility(View.INVISIBLE);
+        proceedbutton.setVisibility(View.INVISIBLE);
 
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                mRegistrationProgressBar.setVisibility(ProgressBar.GONE);
+                mRegistrationProgressBar.setVisibility(ProgressBar.INVISIBLE);
                 SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
                 boolean sentToken = sharedPreferences.getBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false);
                 if (sentToken) {
@@ -275,7 +275,7 @@ public class Welcome extends AppCompatActivity implements
         mRegistrationProgressBar.setVisibility(ProgressBar.VISIBLE);
         if (checkPlayServices()) {
 
-
+            if(Plus.PeopleApi.getCurrentPerson(mGoogleApiClient) != null) {
                 Person currentPerson = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
                 String personName = currentPerson.getDisplayName();
                 String personPhoto = currentPerson.getImage().getUrl();
@@ -286,18 +286,20 @@ public class Welcome extends AppCompatActivity implements
 //            Toast.makeText(getApplicationContext(), "Debug:showSignedInUI" + personPhoto+personGooglePlusId+personName, Toast.LENGTH_LONG).show();
 
 
-            // Start IntentService to register this application with GCM.
-            Intent intent = new Intent(this, RegistrationIntentService.class);
-            EditText editText = (EditText) findViewById(R.id.edit_phone);
-            String message = editText.getText().toString();
-            intent.putExtra(EXTRA_MESSAGE, message);
-            intent.putExtra("name",personName);
-            intent.putExtra("googlePlusId",personGooglePlusId);
-            intent.putExtra("email",email);
-            intent.putExtra("image",personPhoto);
+                // Start IntentService to register this application with GCM.
+                Intent intent = new Intent(this, RegistrationIntentService.class);
+                EditText editText = (EditText) findViewById(R.id.edit_phone);
+                String message = editText.getText().toString();
+                intent.putExtra(EXTRA_MESSAGE, message);
+                intent.putExtra("name", personName);
+                intent.putExtra("googlePlusId", personGooglePlusId);
+                intent.putExtra("email", email);
+                intent.putExtra("image", personPhoto);
 
 
-            startService(intent);
+                startService(intent);
+
+            }
 
         }
 

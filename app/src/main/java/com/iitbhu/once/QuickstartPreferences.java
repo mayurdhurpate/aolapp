@@ -27,7 +27,7 @@ public class QuickstartPreferences {
 
 
     public static final String REGISTRATION_COMPLETE = "registrationComplete";
-    public static final String MESSAGES = "message";
+    public static final String MESSAGES = "messages";
     public static final String CONTACTS = "contacts";
     public static final String NOTIFY = "notificationReceived";
 

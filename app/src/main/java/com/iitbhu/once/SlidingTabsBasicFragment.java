@@ -32,6 +32,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -56,6 +57,7 @@ public class SlidingTabsBasicFragment extends Fragment {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private Handler handler = new Handler();
+    public String bmsgholder="";
 
 
     /**
@@ -179,23 +181,23 @@ public class SlidingTabsBasicFragment extends Fragment {
                 case 2:
                     view = getActivity().getLayoutInflater().inflate(R.layout.broadcast_layout, container, false);
                     container.addView(view);
+                    EditText bmsg = (EditText)view.findViewById(R.id.edit_broadcast);
+                    bmsg.setText(bmsgholder);
                     ((MainActivity)getActivity()).pgbar = (ProgressBar)view.findViewById(R.id.broadcastProgressBar);
                     ((MainActivity)getActivity()).pgbar.setVisibility(View.GONE);
 
                     break;
+
                 case 0:
                     view = getActivity().getLayoutInflater().inflate(R.layout.contactslayout, container, false);
                     container.addView(view);
                     mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
-
-                        mLayoutManager = new LinearLayoutManager(getActivity());
+                    mLayoutManager = new LinearLayoutManager(getActivity());
                     mRecyclerView.setLayoutManager(mLayoutManager);
-
                     String[] contacts = new String[50];
-//                    contacts[0] = "qqq";
-//                    contacts[1] = "ggg";
-
-                    String contacts_array = bundle.getString(QuickstartPreferences.CONTACTS, "No contacts");
+                    SharedPreferences preferences =(getActivity()).getSharedPreferences(QuickstartPreferences.CONTACTS, 0);
+                    String contacts_array = preferences.getString("contacts","No contacts");
+//                    String contacts_array = bundle.getString("contacts", "No contacts");
                     Log.i("contacts_array",contacts_array);
                     try{
                         JSONArray jArray = new JSONArray(contacts_array);
@@ -264,7 +266,9 @@ public class SlidingTabsBasicFragment extends Fragment {
                     mLayoutManager = new LinearLayoutManager(getActivity());
                     mRecyclerView.setLayoutManager(mLayoutManager);
                     String[] messages = new String[50];
-                    String messages_array = bundle.getString(QuickstartPreferences.MESSAGES, "No messages");
+                    SharedPreferences preferences2 =(getActivity()).getSharedPreferences(QuickstartPreferences.MESSAGES,0);
+                    String messages_array = preferences2.getString("messages","No messages");
+                    Log.i("messages_array",messages_array);
                     try{
                         String msg;
                         String sender;
@@ -278,7 +282,6 @@ public class SlidingTabsBasicFragment extends Fragment {
                                 sender = oneObject.getString("sender");
                                 messages[2*i] = sender;
                                 messages[2*i+1] = msg;
-
                             } catch (JSONException e) {
                                 Log.i("excep_sliding_msgs1",e.toString());
                             }
@@ -340,6 +343,11 @@ public class SlidingTabsBasicFragment extends Fragment {
          */
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
+            View view;
+            if(position == 2){
+                EditText bmsg = (EditText)container.findViewById(R.id.edit_broadcast);
+                bmsgholder = bmsg.getText().toString();
+            }
             container.removeView((View) object);
         }
 

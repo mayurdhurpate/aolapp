@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="option_array">
+        <item>Add to calendar</item>
+        <item>Copy to clipboard</item>
+        <item>Share via</item>
+    </string-array>
+</resources>

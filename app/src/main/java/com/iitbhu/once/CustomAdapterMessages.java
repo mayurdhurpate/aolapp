@@ -16,14 +16,26 @@
 
 package com.iitbhu.once;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
+import android.hardware.SensorManager;
 import android.provider.CalendarContract;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,8 +49,9 @@ import java.util.Calendar;
  */
 public class CustomAdapterMessages extends RecyclerView.Adapter<CustomAdapterMessages.ViewHolder> {
     private static final String TAG = "CustomAdapterMessages";
-
+    public  Context context;
     private String[] mDataSet;
+    public String msgtxt;
 
 
     public void updateItems(String newItem,String tab){
@@ -123,8 +136,9 @@ public class CustomAdapterMessages extends RecyclerView.Adapter<CustomAdapterMes
      *
      * @param dataSet String[] containing the data to populate views to be used by RecyclerView.
      */
-    public CustomAdapterMessages(String[] dataSet) {
+    public CustomAdapterMessages(String[] dataSet,Context context) {
         mDataSet = dataSet;
+        this.context = context;
     }
 
     @Override
@@ -165,7 +179,22 @@ public class CustomAdapterMessages extends RecyclerView.Adapter<CustomAdapterMes
     }
 
 
+// {
+//
+//        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+//        alertDialogBuilder.setView(R.layout.dialogmessages);
+//
+//
+//        AlertDialog alertDialog = alertDialogBuilder.create();
+//        alertDialog.show();
+//
+//
+//
+//    }
+
+
     // END_INCLUDE(recyclerViewOnCreateViewHolder)
+
 
 
 
@@ -190,8 +219,16 @@ public class CustomAdapterMessages extends RecyclerView.Adapter<CustomAdapterMes
 //                viewHolder.getItemId();
         }
 
-        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {
+        viewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override public boolean onLongClick(View v) {
+                try {
+                    TextView txtview =(TextView)v.findViewById(R.id.textView);
+                    String txt = txtview.getText().toString();
+                    dialogview(context, txt);
+                }catch(Exception e){
+                    Log.e("msgonclick",e.toString());
+
+                }
 //                Calendar beginTime = Calendar.getInstance();
 //                beginTime.set(2012, 0, 19, 7, 30);
 //                Calendar endTime = Calendar.getInstance();
@@ -206,6 +243,7 @@ public class CustomAdapterMessages extends RecyclerView.Adapter<CustomAdapterMes
 //                        .putExtra(CalendarContract.Events.AVAILABILITY, CalendarContract.Events.AVAILABILITY_BUSY)
 //                        .putExtra(Intent.EXTRA_EMAIL, "omkarjadhav003@gmail.com,trevor@example.com");
 //                v.getContext().startActivity(intent);
+                return true;
             }
         });
 
@@ -226,5 +264,39 @@ public class CustomAdapterMessages extends RecyclerView.Adapter<CustomAdapterMes
             }
         }
         return i;
+    }
+
+    public void dialogview(final Context context, final String v) {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        final String [] items = new String[] {"Add to calendar","Copy to clipboard","Share via"};
+        final Integer[] icons = new Integer[] {R.drawable.ic_event_black_24dp, R.drawable.ic_content_copy_black_24dp,R.drawable.ic_share_black_24dp};
+        ListAdapter adapter = new ArrayAdapterWithIcon(context, items, icons);
+
+        builder.setAdapter(adapter,new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which){
+                    case 0:
+                        Log.i("Add to calendar","added");
+                        break;
+                    case 1:
+                        ClipboardManager clipboard = (ClipboardManager)context.getSystemService(Context.CLIPBOARD_SERVICE);
+                        ClipData clip = ClipData.newPlainText("AOL", v);
+                        clipboard.setPrimaryClip(clip);
+                        Toast.makeText(context,"Copied to clipboard",Toast.LENGTH_SHORT).show();
+                        break;
+                    default:
+                        Intent sendIntent = new Intent();
+                        sendIntent.setAction(Intent.ACTION_SEND);
+                        sendIntent.putExtra(Intent.EXTRA_TEXT, v);
+                        sendIntent.setType("text/plain");
+                        context.startActivity(Intent.createChooser(sendIntent, context.getResources().getText(R.string.share)));
+                        break;
+                }
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+
     }
 }

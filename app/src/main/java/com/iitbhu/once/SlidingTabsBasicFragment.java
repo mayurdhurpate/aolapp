@@ -221,7 +221,7 @@ public class SlidingTabsBasicFragment extends Fragment {
 
 
 
-                    mAdapter = new CustomAdapterContacts(contacts);
+                    mAdapter = new CustomAdapterContacts(contacts,getActivity());
                     mRecyclerView.setAdapter(mAdapter);
                     final SwipeRefreshLayout mSwipeRefreshLayout = (SwipeRefreshLayout)view.findViewById(R.id.activity_main_swipe_refresh_layout);
                     mSwipeRefreshLayout.setColorSchemeResources( R.color.dark_orange,R.color.orange, R.color.maroon);
@@ -292,7 +292,8 @@ public class SlidingTabsBasicFragment extends Fragment {
                         Log.i("excep_sliding_msgs1",e.toString());
 
                     }
-                    mAdapter = new CustomAdapterMessages(messages);
+                    mAdapter = new CustomAdapterMessages(messages,getActivity());
+
                     mRecyclerView.setAdapter(mAdapter);
                     final SwipeRefreshLayout mSwipeRefreshLayout1 = (SwipeRefreshLayout)view.findViewById(R.id.activity_main_swipe_refresh_layout);
                     mSwipeRefreshLayout1.setColorSchemeResources(R.color.maroon, R.color.dark_orange,R.color.orange);

@@ -2,6 +2,7 @@ package com.iitbhu.once;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -12,6 +13,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -139,6 +141,13 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent newintent = new Intent(getBaseContext(), SettingsActivity.class);
+            startActivity(newintent);
+            return true;
+        }
+        else if(id == R.id.action_account){
+            Intent newintent = new Intent(getBaseContext(), Myaccount.class);
+            startActivity(newintent);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -172,6 +181,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void calendar_add(){
+        showToast("added");
+    }
+
+
+
     public void broadcastProceed(View view) {
         pgbar.setVisibility(View.VISIBLE);
         bmsg = (EditText)findViewById(R.id.edit_broadcast);
@@ -185,9 +200,6 @@ public class MainActivity extends AppCompatActivity {
         String username = userFile.getString("name", "user");
         String email = userFile.getString("email","no_email");
         String token = userFile.getString("token", "no_token");
-
-
-
 
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
@@ -288,13 +300,13 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case "broadcast_msg":
                         String error = jObject.getString("error");
-                        if(error.equals("true")){
-                            Toast.makeText(getApplicationContext(),"Please login again",Toast.LENGTH_SHORT).show();
-                        }
                         pgbar.setVisibility(View.GONE);
                         bmsg.setEnabled(true);
                         bbutton.setEnabled(true);
                         imtxt.setText(R.string.imtxt);
+                        if(error.equals("true")){
+                            Toast.makeText(getApplicationContext(),"Please login again",Toast.LENGTH_SHORT).show();
+                        }
                         break;
                     case "error":
                         String except = jObject.getString("exception");

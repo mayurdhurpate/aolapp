@@ -16,12 +16,21 @@
 
 package com.iitbhu.once;
 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Color;
+import android.provider.ContactsContract;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
+
+import com.google.android.gms.plus.model.people.Person;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,6 +44,7 @@ public class CustomAdapterContacts extends RecyclerView.Adapter<CustomAdapterCon
     private static final String TAG = "CustomAdapter";
 
     private String[] mDataSet;
+    public  Context context;
 
 
     public void updateItems(String newItem,String tab){
@@ -117,8 +127,9 @@ public class CustomAdapterContacts extends RecyclerView.Adapter<CustomAdapterCon
      *
      * @param dataSet String[] containing the data to populate views to be used by RecyclerView.
      */
-    public CustomAdapterContacts(String[] dataSet) {
+    public CustomAdapterContacts(String[] dataSet, Context context) {
         mDataSet = dataSet;
+        this.context = context;
     }
 
     @Override
@@ -184,7 +195,68 @@ public class CustomAdapterContacts extends RecyclerView.Adapter<CustomAdapterCon
 //                viewHolder.getItemId();
         }
 
+        viewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+
+            @Override public boolean onLongClick(View v) {
+                try{
+                    final TextView txtview =(TextView)v.findViewById(R.id.textViewSender);
+                    final String txt = txtview.getText().toString();
+                    dialogtocontacts(context,txt);
+
+                }catch(Exception e){
+                    Log.e("onclick",e.toString());
+
+                }
+                return true;
+
+            }
+        });
+
     }
+
+
+    public void dialogtocontacts(final Context context,final String v){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        // Use the Builder class for convenient dialog construction
+        builder.setMessage(R.string.add_to_contacts)
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+                        addAsContactConfirmed (context,v);
+
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+
+                    }
+                });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+        Button nbutton = alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE);
+        nbutton.setTextColor(context.getResources().getColor(R.color.dark_orange));
+        Button pbutton = alertDialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        pbutton.setTextColor(context.getResources().getColor(R.color.dark_orange));
+
+
+    }
+
+    public static void addAsContactConfirmed ( final Context context, final String name) {
+
+        Intent intent = new Intent(Intent.ACTION_INSERT);
+        intent.setType(ContactsContract.Contacts.CONTENT_TYPE);
+
+        intent.putExtra(ContactsContract.Intents.Insert.NAME,name);
+//        intent.putExtra(ContactsContract.Intents.Insert.PHONE, person.mobile);
+//        intent.putExtra(ContactsContract.Intents.Insert.EMAIL, person.email);
+
+        context.startActivity(intent);
+
+    }
+
+
+
     // END_INCLUDE(recyclerViewOnBindViewHolder)
 
     // Return the size of your dataset (invoked by the layout manager)

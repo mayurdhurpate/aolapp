@@ -202,6 +202,8 @@ public class Welcome extends AppCompatActivity implements
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                proceedbutton = (Button)findViewById(R.id.buttonProceed);
+                proceedbutton.setEnabled(true);
                 mRegistrationProgressBar.setVisibility(ProgressBar.INVISIBLE);
                 SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
                 boolean sentToken = sharedPreferences.getBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false);
@@ -221,7 +223,6 @@ public class Welcome extends AppCompatActivity implements
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_welcome, menu);
         return true;
     }
 
@@ -233,9 +234,6 @@ public class Welcome extends AppCompatActivity implements
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -272,6 +270,8 @@ public class Welcome extends AppCompatActivity implements
 //        ProgressBar mRegistrationProgressBar = new ProgressBar(this);
 //        Intent intent = new Intent(this, RegistrationIntentService.class);
 //        startService(intent);
+        proceedbutton = (Button)findViewById(R.id.buttonProceed);
+        proceedbutton.setEnabled(false);
         mRegistrationProgressBar.setVisibility(ProgressBar.VISIBLE);
         if (checkPlayServices()) {
 

@@ -12,5 +12,16 @@
     <string name="grid_layout_manager">Grid Layout Manager</string>
     <string name="linear_layout_manager">Linear Layout Manager</string>
     <string name="imtxt">What should we improve?</string>
+    <string name="pick_option">Pick an Option</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="add_to_contacts">Add to contacts?</string>
+    <string name="share">Share via</string>
+    <string name="calendar">Add to calendar</string>
+    <string name="copy">Copy to clipboard</string>
+    <string name="title_activity_settings_new">SettingsNew</string>
+    <string name="action_account">My Account</string>
+    <string name="title_activity_myaccount">My account</string>
+
 
 </resources>

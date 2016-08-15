@@ -24,13 +24,10 @@ import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
+import android.preference.PreferenceManager;;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.gcm.GcmListenerService;
 
@@ -38,9 +35,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Map;
+
 public class MyGcmListenerService extends GcmListenerService {
 
     private static final String TAG = "MyGcmListenerService";
+    private SharedPreferences pref_def;
+//    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
     /**
      * Called when message is received.
@@ -52,45 +53,61 @@ public class MyGcmListenerService extends GcmListenerService {
     // [START receive_message]
     @Override
     public void onMessageReceived(String from, Bundle data) {
-        Log.i("message aaya","sd");
-        SharedPreferences messagefile;
+        pref_def = PreferenceManager.getDefaultSharedPreferences(this);
+        String topic = data.getString("topic");
 
-        messagefile = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
+        SharedPreferences messagefile = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
         String messages_array = messagefile.getString("messages", "no_messages");
         int lastid = 0;
-                try{
-                    JSONArray jArray = new JSONArray(messages_array);
-                    JSONObject oneObject = jArray.getJSONObject(0);
-                    lastid = oneObject.getInt("id");
+        try {
+            JSONArray jArray = new JSONArray(messages_array);
+            JSONObject oneObject = jArray.getJSONObject(0);
+            lastid = oneObject.getInt("id");
 
-                }catch (Exception e){
+        } catch (Exception e) {
 
-                    Log.i("excep_gcm_msgs1",e.toString());
+            Log.i("excep_gcm_msgs1", e.toString());
 
-                }
+        }
         Log.i("lastid", Integer.toString(lastid));
 
         String newidstring = data.getString("id");
         int newid = Integer.parseInt(newidstring);
-        Log.i("newid",data.getString("id"));
+        Log.i("newid", data.getString("id"));
 
-        if(newid>lastid) {
+        if (newid > lastid) {
             String message = data.getString("message1");
             String title = data.getString("title");
             String sender = data.getString("sender");
+            String date = data.getString("date");
+            String time = data.getString("time");
+            String url = data.getString("img_url");
             Log.d(TAG, "From: " + from);
             Log.d(TAG, "Message: " + message);
             Log.d(TAG, "id: " + newid);
-//            SharedPreferences messages_array = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
             String messages = messagefile.getString("messages", "{}");
-            messages = "[{\"sender\":\"" + sender + "\",\"message\":\"" + message + "\",\"id\":"+newid+ "}," + messages.substring(1);
+            messages = "[{\"sender\":\"" + sender + "\",\"message\":\"" + message + "\",\"id\":\"" + newidstring + "\",\"topic\":\"" + topic + "\",\"title\":\""+title+"\",\"date\":\""+date+"\",\"time\":\""+time+"\",\"url\":\""+url+"\"}," + messages.substring(1);
             Log.i("messages", messages);
             messagefile.edit().putString("messages", messages).apply();
 
             Intent msgReceived = new Intent(QuickstartPreferences.NOTIFY);
             LocalBroadcastManager.getInstance(this).sendBroadcast(msgReceived);
-            sendNotification(message, title);
+
+
+            boolean b = pref_def.getBoolean("notifications_new_message", false);
+            if (b) {
+                Map<String, ?> keys_topic_settings = pref_def.getAll();
+                if (keys_topic_settings.containsKey(topic)) {
+                    if(pref_def.getBoolean(topic,true)) {
+                        sendNotification(message, title);
+                    }
+                }
+                else{
+                    sendNotification(message, title);
+                }
+            }
         }
+
 
     }
     // [END receive_message]
@@ -114,6 +131,11 @@ public class MyGcmListenerService extends GcmListenerService {
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
                 .setContentIntent(pendingIntent);
+        boolean vib = pref_def.getBoolean("notifications_new_message_vibrate",true);
+        if (vib){
+            notificationBuilder.setVibrate(new long[] { 1000, 1000, 1000, 1000, 1000 });
+        }
+
 
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);

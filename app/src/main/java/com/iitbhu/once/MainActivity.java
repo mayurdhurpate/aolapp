@@ -1,37 +1,52 @@
 package com.iitbhu.once;
 
+
+import android.app.ActionBar;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -39,17 +54,27 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
     public final static String EXTRA_MESSAGE = "";
-    private static final String TAG = "RegIntentService";
+    private static final String TAG = "MainActivity";
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     private RecyclerView.Adapter mAdapter;
     public BroadcastReceiver mRegistrationBroadcastReceiver;
     private RecyclerView.LayoutManager mLayoutManager;
     public boolean dataloaded = false;
     public boolean dataloaded1 = false;
-    public ProgressBar pgbar;
+    public LinearLayout pgbar;
     public EditText bmsg;
+    public EditText bmsgtitle;
     public Button bbutton;
     public TextView imtxt;
+    public  String bmsgholder="";
+    public String topic_selected;
+
+    private static final int SELECT_PICTURE = 1;
+    private String selectedImagePath;
+    private Bitmap bitmapBroadcast;
+    private ImageView imageViewBroadcast;
+    private String encodedImage;
+    public SharedPreferences userFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,9 +89,6 @@ public class MainActivity extends AppCompatActivity {
 
         SharedPreferences messagesfile = getSharedPreferences(QuickstartPreferences.MESSAGES, 0);
         boolean inimsg = messagesfile.getBoolean("inimsg", false);
-
-
-
 
         mRegistrationBroadcastReceiver = new BroadcastReceiver() {
 
@@ -110,6 +132,12 @@ public class MainActivity extends AppCompatActivity {
                 fetchMessages();
             }
         }
+
+        userFile = getSharedPreferences(QuickstartPreferences.USERDATA, 0);
+//        ActionBar bar = getSActionBar();
+//        bar.setBackgroundDrawable(new ColorDrawable(R.color.maroon));
+        encodedImage = "";
+
 
 
 
@@ -160,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
         if (networkInfo != null && networkInfo.isConnected()) {
             // fetch data
             showToast("Updating Contacts");
-            new DownloadWebpageTask().execute("http://128.199.123.200/contacts/","passkey=hellolastry","fetch_contacts");
+            new DownloadWebpageTask().execute("http://128.199.123.200/contacts/", "passkey=hellolastry", "fetch_contacts");
         } else {
             showToast("No network connection available!");
             dataloaded = true;
@@ -174,29 +202,32 @@ public class MainActivity extends AppCompatActivity {
         if (networkInfo != null && networkInfo.isConnected()) {
             // fetch data
             showToast("Updating Messages");
-            new DownloadWebpageTask().execute("http://128.199.123.200/messages/","passkey=hellolastry","fetch_messages");
+            new DownloadWebpageTask().execute("http://128.199.123.200/messages/", "passkey=hellolastry", "fetch_messages");
         } else {
             showToast("No network connection available!");
             dataloaded1 = true;
         }
     }
 
-    public void calendar_add(){
-        showToast("added");
-    }
+
 
 
 
     public void broadcastProceed(View view) {
-        pgbar.setVisibility(View.VISIBLE);
-        bmsg = (EditText)findViewById(R.id.edit_broadcast);
-        bmsg.setEnabled(false);
-        bbutton = (Button)findViewById(R.id.bbutton);
-        bbutton.setEnabled(false);
-        imtxt = (TextView)findViewById(R.id.improvetext);
-        imtxt.setText("");
 
-        SharedPreferences userFile = getSharedPreferences(QuickstartPreferences.USERDATA, 0);
+        bmsg = (EditText)findViewById(R.id.edit_broadcast);
+        bbutton = (Button)findViewById(R.id.bbutton);
+        bmsgtitle = (EditText)findViewById(R.id.edit_broadcast_title);
+
+        pgbar.setVisibility(View.VISIBLE);
+        bmsg.setEnabled(false);
+        bbutton.setEnabled(false);
+        bmsgtitle.setEnabled(false);
+
+        Spinner spinner = (Spinner) findViewById(R.id.broadcast_spinner);
+        String spin_val = spinner.getSelectedItem().toString();
+
+
         String username = userFile.getString("name", "user");
         String email = userFile.getString("email","no_email");
         String token = userFile.getString("token", "no_token");
@@ -206,13 +237,12 @@ public class MainActivity extends AppCompatActivity {
         if (networkInfo != null && networkInfo.isConnected()) {
             // fetch data
             showToast("Sending message");
-            new DownloadWebpageTask().execute("http://128.199.123.200/broadcastreceive/","username="+username+"&token="+token+"&email="+email+"&passkey=hellolastry"+"&bmsg="+bmsg.getText()+"&bmsg_title="+username+" says..","broadcast_msg");
+            new DownloadWebpageTask().execute("http://128.199.123.200/broadcastreceive/","username="+username+"&token="+token+"&email="+email+"&passkey=hellolastry"+"&bmsg="+bmsg.getText()+"&bmsg_title="+bmsgtitle.getText()+"&topic="+spin_val+"&image="+encodedImage,"broadcast_msg");
         } else {
             showToast("No network connection available!");
             pgbar.setVisibility(View.GONE);
             bmsg.setEnabled(true);
             bbutton.setEnabled(true);
-            imtxt.setText(R.string.imtxt);
 
         }
 
@@ -249,6 +279,126 @@ public class MainActivity extends AppCompatActivity {
                 adapter.notifyDataSetChanged();
             }
         }
+    }
+
+    public void getImage(View arg0){
+        TextView username = (TextView)findViewById(R.id.textViewSender_msg);
+        username.setText(userFile.getString("name","Name Surname"));
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.putExtra(Intent.EXTRA_LOCAL_ONLY,true);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), SELECT_PICTURE);
+
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            if (requestCode == SELECT_PICTURE) {
+                Uri selectedImageUri = data.getData();
+                Log.d(TAG,selectedImageUri.toString());
+                selectedImagePath = getPath(selectedImageUri);
+                Log.d(TAG,selectedImagePath);
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                BitmapFactory.decodeFile(selectedImagePath,options);
+                int imageHeight = options.outHeight;
+                int imageWidth = options.outWidth;
+                String imageType = options.outMimeType;
+                Log.d(TAG,Integer.toString(imageHeight)+" "+Integer.toString(imageHeight)+imageType);
+                options.inSampleSize = calculateInSampleSize(options, 300, 300);
+                options.inJustDecodeBounds = false;
+                bitmapBroadcast = BitmapFactory.decodeFile(selectedImagePath, options);
+                imageViewBroadcast = (ImageView)findViewById(R.id.broadcastImageView);
+
+                //test
+//                saveToExternalStorage(bitmapBroadcast, "image");
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                bitmapBroadcast.compress(Bitmap.CompressFormat.JPEG, 100, baos); //bm is the bitmap object
+                imageViewBroadcast.setImageBitmap(bitmapBroadcast);
+                byte[] b = baos.toByteArray();
+                encodedImage = Base64.encodeToString(b, Base64.URL_SAFE);
+                Log.d(TAG, Integer.toString(encodedImage.length()));
+
+//
+//                bmsgtitle = (EditText)findViewById(R.id.edit_broadcast_title);
+//                bmsgtitle.setText(encodedImage);
+            }
+        }
+    }
+
+    private String saveToExternalStorage(Bitmap bitmapImage,String email){
+        String picname = email + ".jpg";
+        ContextWrapper cw = new ContextWrapper(getApplicationContext());
+        // path to /data/data/yourapp/app_data/imageDir
+//        File directory = cw.getDir("Images", Context.MODE_PRIVATE);
+        File directory1 = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES+ "/AOL-Varanasi/");
+        // Create imageDir
+        if (!directory1.exists()) {
+            directory1.mkdirs();
+        }
+        File mypath=new File(directory1,picname);
+
+        FileOutputStream fos = null;
+        try {
+
+            fos = new FileOutputStream(mypath);
+            bitmapImage.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+            fos.close();
+        } catch (Exception e) {
+            Log.i("kya hua?", "saving mein panga");
+            e.printStackTrace();
+        }
+        Log.d(TAG,directory1.getAbsolutePath());
+        return directory1.getAbsolutePath();
+    }
+
+    /**
+     * helper to retrieve the path of an image URI
+     */
+    public String getPath(Uri uri) {
+        // just some safety built in
+        if( uri == null ) {
+            // TODO perform some logging or show user feedback
+            showToast("uri:null Image obtained");
+            return null;
+        }
+        // try to retrieve the image from the media store first
+        // this will only work for images selected from gallery
+        String[] projection = { MediaStore.Images.Media.DATA };
+        Cursor cursor = managedQuery(uri, projection, null, null, null);
+        if( cursor != null ){
+            int column_index = cursor
+                    .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            return cursor.getString(column_index);
+        }
+        // this is our fallback here
+        return uri.getPath();
+    }
+
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) > reqHeight
+                    && (halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
     }
 
 
@@ -302,8 +452,10 @@ public class MainActivity extends AppCompatActivity {
                         String error = jObject.getString("error");
                         pgbar.setVisibility(View.GONE);
                         bmsg.setEnabled(true);
+                        bmsgtitle.setEnabled(true);
                         bbutton.setEnabled(true);
-                        imtxt.setText(R.string.imtxt);
+                        bmsg.setText("");
+                        bmsgholder = "";
                         if(error.equals("true")){
                             Toast.makeText(getApplicationContext(),"Please login again",Toast.LENGTH_SHORT).show();
                         }
@@ -316,8 +468,8 @@ public class MainActivity extends AppCompatActivity {
                         if(type.equals("broadcast_msg")){
                             pgbar.setVisibility(View.GONE);
                             bmsg.setEnabled(true);
+                            bmsgtitle.setEnabled(true);
                             bbutton.setEnabled(true);
-                            imtxt.setText(R.string.imtxt);
                         }
                         else if(type.equals("fetch_messages")){
                             dataloaded1 = true;
@@ -343,8 +495,8 @@ public class MainActivity extends AppCompatActivity {
 
         private String downloadUrl(String myurl, String postdata, String action) throws IOException {
             InputStream is = null;
-            int len = 5000000;
-            Log.i("postdata",postdata);
+//            Log.i("postdata",postdata);
+//            Log.i("posdata",Integer.toString(postdata.length()));
             URL url;
             try {
                 url = new URL(myurl);
@@ -358,17 +510,26 @@ public class MainActivity extends AppCompatActivity {
                 wr.flush();
                 wr.close();
 
-                is = conn.getInputStream();
                 int statusCode = conn.getResponseCode();
-                Log.i("statuscode",Integer.toString(statusCode));
+                Log.i("statuscode", Integer.toString(statusCode));
+                try {
+                    is = conn.getInputStream();
+                }
+                catch (Exception e){
+                    Log.d(TAG,e.toString());
+                    is = conn.getErrorStream();
+                    generateNoteOnSD("error.html",readIt(is));
+                    generateNoteOnSD("error.txt",readIt(is));
+                }
 //                showToast(Integer.toString(statusCode));
 //                Convert the InputStream into a string
-                String contentAsString = readIt(is, len);
+                String contentAsString = readIt(is);
                 return contentAsString;
 
 
             } catch (IOException e) {
                 Log.i("printstack",e.toString());
+
 //                showToast("Check your network connection");
                 return  "{\"action\": \"error\",\"exception\":\""+e.toString()+"\",\"type\":\""+action+"\"}";
             }
@@ -377,14 +538,47 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-        public String readIt(InputStream stream, int len) throws IOException, UnsupportedEncodingException {
-            Reader reader = null;
-            reader = new InputStreamReader(stream, "UTF-8");
-            char[] buffer = new char[len];
-            reader.read(buffer);
-            return new String(buffer);
+        public String readIt(InputStream stream) throws IOException, UnsupportedEncodingException {
+            InputStream in = stream;
+            InputStreamReader is = new InputStreamReader(in);
+            StringBuilder sb=new StringBuilder();
+            BufferedReader br = new BufferedReader(is);
+            String read = br.readLine();
+
+            while(read != null) {
+                //System.out.println(read);
+                sb.append(read);
+                read =br.readLine();
+
+            }
+
+            return sb.toString();
         }
     }
+
+
+    public void generateNoteOnSD(String sFileName, String sBody){
+        try
+        {
+            File root = new File(Environment.getExternalStorageDirectory(), "Notes");
+            if (!root.exists()) {
+                root.mkdirs();
+            }
+            File gpxfile = new File(root, sFileName);
+            FileWriter writer = new FileWriter(gpxfile);
+            writer.append(sBody);
+            writer.flush();
+            writer.close();
+//            Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show();
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
+            Log.d(TAG,e.toString());
+        }
+    }
+
+
 
 
 }

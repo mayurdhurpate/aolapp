@@ -14,5 +14,6 @@
     <color name="white">#ffffff</color>
     <color name="maroon">#930c0c</color>
     <color name="dark_orange">#e46f0d</color>
+    <color name="faint_orange">#FADEAC</color>
 
 </resources>

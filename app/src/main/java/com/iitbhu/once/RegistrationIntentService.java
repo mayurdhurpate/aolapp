@@ -36,6 +36,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -201,7 +202,7 @@ public class RegistrationIntentService extends IntentService {
 
     private String downloadUrl(String myurl, String postdata) throws IOException{
         InputStream is = null;
-        int len = 50000;
+//        int len = 50000;
         URL url;
         try {
             url = new URL(myurl);
@@ -218,7 +219,7 @@ public class RegistrationIntentService extends IntentService {
 
             is = conn.getInputStream();
             //Convert the InputStream into a string
-            String contentAsString = readIt(is, len);
+            String contentAsString = readIt(is);
             return contentAsString;
 //            int statusCode = conn.getResponseCode();
 //            return Integer.toString(statusCode);
@@ -235,12 +236,21 @@ public class RegistrationIntentService extends IntentService {
 
 
 
-    public String readIt(InputStream stream, int len) throws IOException, UnsupportedEncodingException {
-        Reader reader = null;
-        reader = new InputStreamReader(stream, "UTF-8");
-        char[] buffer = new char[len];
-        reader.read(buffer);
-        return new String(buffer);
+    public String readIt(InputStream stream) throws IOException, UnsupportedEncodingException {
+        InputStream in = stream;
+        InputStreamReader is = new InputStreamReader(in);
+        StringBuilder sb=new StringBuilder();
+        BufferedReader br = new BufferedReader(is);
+        String read = br.readLine();
+
+        while(read != null) {
+            //System.out.println(read);
+            sb.append(read);
+            read =br.readLine();
+
+        }
+
+        return sb.toString();
     }
 
 }

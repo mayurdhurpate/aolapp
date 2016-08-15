@@ -1,53 +1,214 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical">
 
-    <!--<ProgressBar-->
-        <!--android:id="@+id/pgbar"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="2sp"-->
-        <!--style="@android:style/Widget.ProgressBar.Horizontal"-->
-        <!--android:indeterminate="true"-->
-        <!--android:progressDrawable="@color/sky_blue"-->
-        <!--android:layout_marginRight="5dp" />-->
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent">
 
-    <View
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:background="@color/maroon" />
+        android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/improvetext"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/imtxt"
-        android:textColor="@color/black"
-        android:textSize="20sp"
-        android:layout_marginTop="5sp"
-        android:layout_weight="2"/>
+    <LinearLayout
+        android:id="@+id/linear_msg"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:orientation="vertical">
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/edit_broadcast"
-        android:layout_weight="1"
-        android:hint="Broadcast Message"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="10dp"
+            android:layout_gravity="center_horizontal">
 
-    <Button
-        android:id="@+id/bbutton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="THIS..."
-        android:layout_marginBottom="200sp"
-        android:onClick="broadcastProceed"/>
+        <Spinner
+            android:id="@+id/broadcast_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/margin_medium"
+            android:layout_marginEnd="@dimen/margin_medium"/>
 
-    <ProgressBar
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/broadcastProgressBar"
-        android:layout_marginBottom="50sp"/>
+            <Button
+                android:id="@+id/bbutton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Send"
+                android:textColor="@color/white"
+                android:background="@color/maroon"
+                android:onClick="broadcastProceed" />
 
-</LinearLayout>
+        </LinearLayout>
+
+
+
+        <LinearLayout
+            xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin_medium"
+            android:layout_marginRight="@dimen/margin_medium"
+            android:orientation="vertical">
+
+            <android.support.v7.widget.CardView
+                android:id="@+id/cardview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                card_view:cardCornerRadius="3dp"
+                android:layout_marginBottom="@dimen/margin_small"
+                card_view:cardElevation="5dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:background="@color/maroon">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:layout_marginTop="24dp">
+
+                            <TextView
+                                android:id="@+id/textViewTopic_msg"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="12sp"
+                                android:text="Courses"
+                                android:textAllCaps="true"
+                                android:textStyle="bold"
+                                android:textColor="@color/white"/>
+
+                            <TextView
+                                android:id="@+id/textViewDateTime_msg"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="13sp"
+                                android:gravity="end"
+                                android:text="22-09-1995 00:00"
+                                android:textColor="@color/white"/>
+
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="16sp"
+                                android:textColor="@color/white"
+                                android:layout_marginLeft="10dp"
+                                android:layout_marginBottom="8dp"
+                                android:text="By "/>
+
+                            <TextView
+                                android:id="@+id/textViewSender_msg"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Name Surname"
+                                android:textSize="16sp"
+                                android:textColor="@color/white"
+                                android:layout_marginBottom="8dp" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+                    <RelativeLayout
+                        xmlns:android="http://schemas.android.com/apk/res/android"
+                        android:id="@+id/relativelayout"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent" >
+
+                        <ImageView
+                            android:id="@+id/broadcastImageView"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/srisri"
+                            android:onClick="getImage"
+                            android:adjustViewBounds="true"/>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignLeft="@+id/broadcastImageView"
+                            android:layout_alignTop="@+id/broadcastImageView"
+                            android:layout_alignRight="@+id/broadcastImageView"
+                            android:layout_alignBottom="@+id/broadcastImageView"
+                            android:gravity="bottom">
+
+                            <EditText
+                                android:id="@+id/edit_broadcast_title"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textSize="24sp"
+                                android:paddingLeft="10dp"
+                                android:paddingBottom="10dp"
+                                android:hint="Title"
+                                android:textColorHint="@color/white"
+                                android:textStyle="bold"
+                                android:textColor="#FFFFFF"
+                                android:background="#0D000000"/>
+
+                        </LinearLayout>
+
+                    </RelativeLayout>
+
+
+                    <EditText
+                        android:id="@+id/edit_broadcast"
+                        android:layout_width="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:textColor="@color/black"
+                        android:textColorHint="@color/black"
+                        android:background="#00000000"
+                        android:hint="Message"/>
+
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+        </LinearLayout>
+    </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/broadcastProgressBar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignLeft="@+id/linear_msg"
+            android:layout_alignTop="@+id/linear_msg"
+            android:layout_alignRight="@+id/linear_msg"
+            android:layout_alignBottom="@+id/linear_msg"
+            android:gravity="center"
+            android:background="#CCFFFFFF">
+
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+
+        </LinearLayout>
+
+
+
+
+    </RelativeLayout>
+
+</ScrollView>

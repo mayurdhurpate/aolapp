@@ -2,6 +2,7 @@ package com.iitbhu.once;
 
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -16,27 +17,44 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.common.Scopes;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Scope;
+import com.google.android.gms.plus.Plus;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Set;
 
 
 public class Myaccount extends AppCompatActivity {
     public SharedPreferences preferences;
     public String image_path;
+    public String imageurl;
+    public GoogleApiClient mGoogleApiClient;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_myaccount);
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(Plus.API)
+                .addScope(new Scope(Scopes.PROFILE))
+                .build();
+
         preferences = getSharedPreferences(QuickstartPreferences.USERDATA,0);
-        String imageurl = preferences.getString("image","no_url");
+        imageurl = preferences.getString("image", "no_url");
         String name = preferences.getString("name","user");
         String email = preferences.getString("email","email");
         String phone = preferences.getString("phone","phone");
@@ -68,8 +86,7 @@ public class Myaccount extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_myaccount, menu);
+
         return true;
     }
 
@@ -78,23 +95,55 @@ public class Myaccount extends AppCompatActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
 
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
+    }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mGoogleApiClient.disconnect();
+    }
+
+
+    public void logOut(View view){
+        if (view.getId() == R.id.buttonLogOut) {
+            onSignOutClicked();
+        }    }
+
+    private void onSignOutClicked() {
+        // Clear the default account so that GoogleApiClient will not automatically
+        // connect in the future.
+        if (mGoogleApiClient.isConnected()) {
+            Plus.AccountApi.clearDefaultAccount(mGoogleApiClient);
+            mGoogleApiClient.disconnect();
+        }
+
+//        showSignedOutUI();
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        sharedPreferences.edit().putBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false).apply();
+        Toast.makeText(getApplicationContext(), "Logged Out", Toast.LENGTH_SHORT).show();
+
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        finish();
+    }
 
     public void Imagedownload(ImageView imageView){
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        String imgurl = imageurl.substring(0,imageurl.length()-2) + "200";
         if (networkInfo != null && networkInfo.isConnected()) {
-            new ImageDownloader(imageView).execute("https://lh5.googleusercontent.com/-S9_1Kar2j9c/AAAAAAAAAAI/AAAAAAAAABc/3b1dD5FDrF4/photo.jpg?sz=200");
+            new ImageDownloader(imageView).execute(imgurl);
         } else {
             Toast.makeText(getApplicationContext(),"No network connection available!",Toast.LENGTH_SHORT).show();
         }

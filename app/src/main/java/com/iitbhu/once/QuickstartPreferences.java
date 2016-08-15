@@ -30,5 +30,5 @@ public class QuickstartPreferences {
     public static final String MESSAGES = "messages";
     public static final String CONTACTS = "contacts";
     public static final String NOTIFY = "notificationReceived";
-
+    public static final String TOPICS = "topics";
 }

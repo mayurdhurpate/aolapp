@@ -11,35 +11,56 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
-        android:layout_marginBottom="50dp"/>
+        android:layout_marginBottom="0dp"
+        android:layout_gravity="center"/>
+
+
+    <TextView
+        android:id="@+id/progress_view"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textSize="24sp"
+        android:textColor="@color/black"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/progress_view_number"
+        android:layout_width="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="50dp"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textSize="45sp"
+        android:visibility="gone"/>
 
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/phone_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:layout_marginBottom="50dp">
+        android:layout_marginBottom="50dp"
+        android:visibility="gone">
 
-
+        <TextView
+            android:id="@+id/edit_phone_code"
+            android:layout_width="wrap_content"
+            android:textColor="@color/black"
+            android:layout_height="wrap_content"
+            android:textSize="24sp"
+            android:text="+91-"/>
 
 
         <EditText
-            android:layout_width="wrap_content"
+            android:textSize="24sp"
             android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
             android:id="@+id/edit_phone"
             android:inputType="phone"
+            android:background="#0D000000"
             android:hint="@string/edit_phone"/>
-
-
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/button_proceed"
-            android:id="@+id/buttonProceed"
-            android:onClick="Proceed"/>
 
     </LinearLayout>
 
@@ -52,6 +73,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/aolicon"
             android:scaleType="center"/>
+
     </FrameLayout>
 
 

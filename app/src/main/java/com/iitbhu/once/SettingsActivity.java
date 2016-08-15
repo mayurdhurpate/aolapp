@@ -2,12 +2,14 @@ package com.iitbhu.once;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -16,11 +18,15 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
 
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -41,6 +47,7 @@ public class SettingsActivity extends PreferenceActivity {
      * shown on tablets.
      */
     private static final boolean ALWAYS_SIMPLE_PREFS = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,8 +114,20 @@ public class SettingsActivity extends PreferenceActivity {
         // Add 'notifications' preferences, and a corresponding header.
         fakeHeader = new PreferenceCategory(this);
         fakeHeader.setTitle(R.string.pref_header_notifications);
+        fakeHeader.setKey("notifications");
         getPreferenceScreen().addPreference(fakeHeader);
         addPreferencesFromResource(R.xml.pref_notification);
+
+        // Add 'topics' preferences, and a corresponding header.
+        fakeHeader = new PreferenceCategory(this);
+        fakeHeader.setKey("topics");
+        fakeHeader.setTitle(R.string.pref_header_topics);
+        getPreferenceScreen().addPreference(fakeHeader);
+        addPreferencesFromResource(R.xml.pref_topics);
+
+
+
+
 
         // Add 'data and sync' preferences, and a corresponding header.
         fakeHeader = new PreferenceCategory(this);
@@ -122,7 +141,12 @@ public class SettingsActivity extends PreferenceActivity {
 //        bindPreferenceSummaryToValue(findPreference("example_text"));
 //        bindPreferenceSummaryToValue(findPreference("example_list"));
 //        bindPreferenceSummaryToValue(findPreference("notifications_new_message_ringtone"));
+//        bindPreferenceSummaryToValue(findPreference("notifications_new_message"));
+//        bindPreferenceSummaryToValue(findPreference("example_list1"));
         bindPreferenceSummaryToValue(findPreference("sync_frequency"));
+//        bindPreferenceSummaryToValue(findPreference("notifications_new_message_vibrate"));
+//        bindPreferenceSummaryToValue(findPreference("pref_syncConnectionType"));
+//        bindPreferenceSummaryToValue(findPreference("pref_sync"));
     }
 
     /**
@@ -166,6 +190,7 @@ public class SettingsActivity extends PreferenceActivity {
         }
     }
 
+    private void simple(){};
     /**
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
@@ -173,13 +198,27 @@ public class SettingsActivity extends PreferenceActivity {
     private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
-            String stringValue = value.toString();
+            String stringValue;
+            try {
+                stringValue = value.toString();
+            }
+            catch (Exception e){
+                Log.i("strval0","exception run");
+                if ((Boolean)value) {
+                    stringValue = "true";
+                }
+                else{
+                    stringValue = "false";
+                }
+
+            }
 
             if (preference instanceof ListPreference) {
                 // For list preferences, look up the correct display value in
                 // the preference's 'entries' list.
                 ListPreference listPreference = (ListPreference) preference;
                 int index = listPreference.findIndexOfValue(stringValue);
+                Log.i("strval1",stringValue);
 
                 // Set the summary to reflect the new value.
                 preference.setSummary(
@@ -209,10 +248,12 @@ public class SettingsActivity extends PreferenceActivity {
                     }
                 }
 
-            } else {
+            }
+            else {
                 // For all other preferences, set the summary to the value's
                 // simple string representation.
                 preference.setSummary(stringValue);
+                Log.i("strval2", stringValue);
             }
             return true;
         }
@@ -233,10 +274,29 @@ public class SettingsActivity extends PreferenceActivity {
 
         // Trigger the listener immediately with the preference's
         // current value.
-        sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences(preference.getContext())
-                        .getString(preference.getKey(), ""));
+       try {
+           Log.i("level","1");
+           sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
+                   PreferenceManager
+                           .getDefaultSharedPreferences(preference.getContext())
+                           .getString(preference.getKey(), ""));
+       }catch (Exception e){
+           try {
+               Log.i("level","2");
+               sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
+                       PreferenceManager
+                               .getDefaultSharedPreferences(preference.getContext())
+                               .getBoolean(preference.getKey(), false));
+           }catch (Exception e1){
+               Log.i("level","3");
+//               Set setB = new HashSet();
+//               sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
+//                       PreferenceManager
+//                               .getDefaultSharedPreferences(preference.getContext())
+//                               .getStringSet(preference.getKey(),setB));
+
+           }
+       }
     }
 
     /**

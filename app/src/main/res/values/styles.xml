@@ -1,11 +1,26 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources xmlns:tools="http://schemas.android.com/apk/res/android">
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light">
         <!-- Customize your theme here. -->
-
+<item name="android:actionBarStyle">@style/MyActionBar</item>
     </style>
 
+    <style name="MyActionBar"
+        parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="colorPrimary">#01DFD7</item>
+        <item name="android:background">#01DFD7</item>
+    </style>
+
+    <style name="SettingsTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:textColorPrimary">@color/maroon</item>
+        <item name="android:textColorSecondary">@color/orange</item>
+        <item name="android:keyTextColor">@color/light_green</item>
+        <item name="android:listViewStyle">@style/MyListViewStyle</item>
+    </style>
+    <style name="MyListViewStyle" parent="Widget.AppCompat.ListView">
+        <item name="android:textColor">@color/blue</item>
+    </style>
 
 
 </resources>

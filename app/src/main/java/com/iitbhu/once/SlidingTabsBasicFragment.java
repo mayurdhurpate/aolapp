@@ -32,8 +32,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.iitbhu.once.common.view.*;
@@ -43,6 +47,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 
 public class SlidingTabsBasicFragment extends Fragment {
@@ -57,7 +62,8 @@ public class SlidingTabsBasicFragment extends Fragment {
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
     private Handler handler = new Handler();
-    public String bmsgholder="";
+
+
 
 
     /**
@@ -113,6 +119,8 @@ public class SlidingTabsBasicFragment extends Fragment {
                 return getResources().getColor(R.color.maroon);    //define any color in xml resources and set it here, I have used white
             }
         });
+
+        mSlidingTabLayout.setSelectedIndicatorColors(R.color.white, R.color.white,R.color.white,R.color.white);
 
 
 
@@ -182,9 +190,29 @@ public class SlidingTabsBasicFragment extends Fragment {
                     view = getActivity().getLayoutInflater().inflate(R.layout.broadcast_layout, container, false);
                     container.addView(view);
                     EditText bmsg = (EditText)view.findViewById(R.id.edit_broadcast);
-                    bmsg.setText(bmsgholder);
-                    ((MainActivity)getActivity()).pgbar = (ProgressBar)view.findViewById(R.id.broadcastProgressBar);
+                    bmsg.setText(((MainActivity)getActivity()).bmsgholder);
+                    ((MainActivity)getActivity()).pgbar = (LinearLayout)view.findViewById(R.id.broadcastProgressBar);
                     ((MainActivity)getActivity()).pgbar.setVisibility(View.GONE);
+//                    Spinner spinner = (Spinner)view.findViewById(R.id.broadcast_spinner);
+
+                    SharedPreferences topic_pref = (getActivity()).getSharedPreferences(QuickstartPreferences.TOPICS, 0);
+                    Map<String, ?> keys = topic_pref.getAll();
+                    String[] topics = new String[keys.size()];
+                    int j = 0;
+                    for(Map.Entry<String,?> entry : keys.entrySet()){
+                        topics[j] = entry.getValue().toString();
+                        j++;
+                    }
+
+
+                    Spinner spinner = (Spinner) view.findViewById(R.id.broadcast_spinner);
+// Create an ArrayAdapter using the string array and a default spinner layout
+                    ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity(),
+                            R.array.topics_array, android.R.layout.simple_spinner_item);
+// Specify the layout to use when the list of choices appears
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+// Apply the adapter to the spinner
+                    spinner.setAdapter(adapter);
 
                     break;
 
@@ -194,20 +222,28 @@ public class SlidingTabsBasicFragment extends Fragment {
                     mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView);
                     mLayoutManager = new LinearLayoutManager(getActivity());
                     mRecyclerView.setLayoutManager(mLayoutManager);
-                    String[] contacts = new String[50];
+                    String[][] contacts = new String[1][6];
                     SharedPreferences preferences =(getActivity()).getSharedPreferences(QuickstartPreferences.CONTACTS, 0);
-                    String contacts_array = preferences.getString("contacts","No contacts");
-//                    String contacts_array = bundle.getString("contacts", "No contacts");
+                    String contacts_array = preferences.getString("contacts", "No contacts");
+                    int itemCount = 0;
                     Log.i("contacts_array",contacts_array);
                     try{
                         JSONArray jArray = new JSONArray(contacts_array);
+                        itemCount = jArray.length();
+                        contacts = new String[itemCount][6];
                         for (int i=0; i < jArray.length(); i=i+1)
                         {
                             try {
                                 JSONObject oneObject = jArray.getJSONObject(i);
-                                contacts[2*i]= oneObject.getString("name");
-                                contacts[2*i+1] = "Member";
-
+                                contacts[i][0] = oneObject.getString("name");
+                                contacts[i][1] = oneObject.getString("email");
+                                Log.i("email",contacts[i][1]);
+                                if(!oneObject.getString("role").equals("")){
+                                    contacts[i][2] = oneObject.getString("role");
+                                }else{
+                                    contacts[i][2] = "Member";
+                                }
+                                contacts[i][3] = oneObject.getString("image_url");
                             } catch (JSONException e) {
                                 Log.i("excep_sliding_conts1",e.toString());
                             }
@@ -221,8 +257,10 @@ public class SlidingTabsBasicFragment extends Fragment {
 
 
 
-                    mAdapter = new CustomAdapterContacts(contacts,getActivity());
+                    mAdapter = new CustomAdapterContacts(contacts,getActivity(),itemCount);
                     mRecyclerView.setAdapter(mAdapter);
+
+
                     final SwipeRefreshLayout mSwipeRefreshLayout = (SwipeRefreshLayout)view.findViewById(R.id.activity_main_swipe_refresh_layout);
                     mSwipeRefreshLayout.setColorSchemeResources( R.color.dark_orange,R.color.orange, R.color.maroon);
                      final Runnable refreshing = new Runnable() {
@@ -265,23 +303,29 @@ public class SlidingTabsBasicFragment extends Fragment {
                     mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerView2);
                     mLayoutManager = new LinearLayoutManager(getActivity());
                     mRecyclerView.setLayoutManager(mLayoutManager);
-                    String[] messages = new String[50];
+                    String[][] messages = new String[1][10];
+                    int messageCount=0;
                     SharedPreferences preferences2 =(getActivity()).getSharedPreferences(QuickstartPreferences.MESSAGES,0);
                     String messages_array = preferences2.getString("messages","No messages");
                     Log.i("messages_array",messages_array);
                     try{
-                        String msg;
-                        String sender;
                         JSONArray jArray = new JSONArray(messages_array);
+                        messageCount = jArray.length();
+                        messages = new String[messageCount][10];
                         for (int i=0; i < jArray.length(); i=i+1)
 
                         {
                             try {
                                 JSONObject oneObject = jArray.getJSONObject(i);
-                                msg = oneObject.getString("message");
-                                sender = oneObject.getString("sender");
-                                messages[2*i] = sender;
-                                messages[2*i+1] = msg;
+                                messages[i][0] = oneObject.getString("id");
+                                messages[i][1] = oneObject.getString("topic");
+                                messages[i][2] = oneObject.getString("date");
+                                messages[i][3] = oneObject.getString("time");
+                                messages[i][4] = oneObject.getString("title");
+                                messages[i][5] = oneObject.getString("sender");
+                                messages[i][6] = oneObject.getString("message");
+                                messages[i][7] = oneObject.getString("url");
+
                             } catch (JSONException e) {
                                 Log.i("excep_sliding_msgs1",e.toString());
                             }
@@ -292,7 +336,7 @@ public class SlidingTabsBasicFragment extends Fragment {
                         Log.i("excep_sliding_msgs1",e.toString());
 
                     }
-                    mAdapter = new CustomAdapterMessages(messages,getActivity());
+                    mAdapter = new CustomAdapterMessages(messages,getActivity(),messageCount);
 
                     mRecyclerView.setAdapter(mAdapter);
                     final SwipeRefreshLayout mSwipeRefreshLayout1 = (SwipeRefreshLayout)view.findViewById(R.id.activity_main_swipe_refresh_layout);
@@ -327,6 +371,8 @@ public class SlidingTabsBasicFragment extends Fragment {
 
                     break;
 
+
+
                 default:
                     view = getActivity().getLayoutInflater().inflate(R.layout.pager_item, container, false);
                     container.addView(view);
@@ -347,12 +393,13 @@ public class SlidingTabsBasicFragment extends Fragment {
             View view;
             if(position == 2){
                 EditText bmsg = (EditText)container.findViewById(R.id.edit_broadcast);
-                bmsgholder = bmsg.getText().toString();
+                ((MainActivity)getActivity()).bmsgholder = bmsg.getText().toString();
             }
             container.removeView((View) object);
         }
 
     }
+
 
 
 }

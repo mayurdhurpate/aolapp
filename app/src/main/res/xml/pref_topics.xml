@@ -1,0 +1,35 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <CheckBoxPreference
+        android:dependency="notifications_new_message"
+        android:key="Quotes"
+        android:title="@string/topic_quotes"
+        android:defaultValue="true" />
+
+    <CheckBoxPreference
+        android:dependency="notifications_new_message"
+        android:key="Courses"
+        android:title="@string/topic_course"
+        android:defaultValue="true" />
+
+    <CheckBoxPreference
+        android:dependency="notifications_new_message"
+        android:key="Follow-up"
+        android:title="@string/topic_followup"
+        android:defaultValue="true" />
+
+    <CheckBoxPreference
+        android:dependency="notifications_new_message"
+        android:key="Satsang"
+        android:title="@string/topic_satsang"
+        android:defaultValue="true" />
+
+    <CheckBoxPreference
+        android:dependency="notifications_new_message"
+        android:key="Others"
+        android:title="@string/topic_others"
+        android:defaultValue="true"
+        android:enabled="false" />
+
+</PreferenceScreen>
